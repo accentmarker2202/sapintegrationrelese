@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        SAP latest integration relese updates
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ================================
+         MENU BAR
+    ================================= -->
+
+    <nav class="menu-bar">
+
+        <ul>
+
+            <li>
+                <a
+                    href="#home"
+                    class="active"
+                >
+                    🏠 Home
+                </a>
+            </li>
+
+            <li>
+                <a href="#about">
+                    ℹ️ About
+                </a>
+            </li>
+
+            <li>
+                <a href="#services">
+                    ⚙️ Services
+                </a>
+            </li>
+
+            <li>
+                <a href="#documentation">
+                    📚 Documentation
+                </a>
+            </li>
+
+            <li>
+                <a href="#contact">
+                    📧 Contact
+                </a>
+            </li>
+
+            <li>
+                <a href="#help">
+                    ❓ Help
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <!-- ================================
+         SAP CONTENT
+    ================================= -->
+
+    <div id="sapContainer">
+
+        <div id="sapContent">
+
+
+            <div class="sap-logo-container">
+
+                <img
+                    class="sap-logo"
+                    src="sap-logo-vector.png"
+                    alt="SAP Logo"
+                >
+
+            </div>
+
+
+            <h2>
+                SAP Integration Module - Standard Descriptions
+            </h2>
+
+
+            <div
+                id="sapText"
+                class="loading"
+            >
+                Loading SAP content...
+            </div>
+
+
+            <div class="date-selector-container">
+
+                <label for="dateInput">
+                    📅 Enter the latest date for the recent updates:
+                </label>
+
+
+                <div class="date-row">
+
+                    <input
+                        type="text"
+                        id="dateInput"
+                        placeholder="YYYY-MM-DD"
+                        maxlength="10"
+                        autocomplete="off"
+                        inputmode="numeric"
+                    >
+
+
+                    <button
+                        type="button"
+                        id="verifyDateButton"
+                    >
+                        Continue
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="dateError"
+                    role="alert"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================
+         CHAT FRAME
+    ================================= -->
+
+    <div id="askmeContainer">
+
+
+        <div id="askmeHeader">
+
+            <span>
+                SAP Latest updates
+            </span>
+
+
+            <button
+                type="button"
+                class="close-btn"
+                id="closeaskmeBtn"
+            >
+                finish the updates
+            </button>
+
+        </div>
+
+
+        <!-- ================================
+             PASSWORD SCREEN
+        ================================= -->
+
+        <div
+            id="chatPasswordGate"
+            class="visible"
+        >
+
+            <div class="chat-password-card">
+
+
+                <div class="password-icon">
+                    🔐
+                </div>
+
+
+                <h2>
+                    Secure Chat
+                </h2>
+
+
+                <p>
+                    Enter the password to view the chat history
+                    and enable messaging.
+                </p>
+
+
+                <form id="passwordForm">
+
+
+                    <input
+                        type="password"
+                        id="chatPassword"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                        required
+                        maxlength="200"
+                    >
+
+
+                    <button
+                        type="submit"
+                        id="unlockButton"
+                    >
+                        Unlock Chat
+                    </button>
+
+                </form>
+
+
+                <div
+                    id="passwordError"
+                    role="alert"
+                ></div>
+
+
+                <button
+                    type="button"
+                    class="cancel-password"
+                    id="cancelPasswordBtn"
+                >
+                    Back
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================
+             AUTHENTICATED CHAT
+        ================================= -->
+
+        <div
+            id="authenticatedChat"
+            class="authenticated-chat"
+        >
+
+            <div id="askme"></div>
+
+
+            <form id="form">
+
+                <input
+                    type="text"
+                    id="msg"
+                    placeholder="information to be checked ..."
+                    required
+                    autocomplete="off"
+                    maxlength="2000"
+                >
+
+
+                <button type="submit">
+                    Send
+                </button>
+
+            </form>
+
+        </div>
+
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
