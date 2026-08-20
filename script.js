@@ -5,32 +5,34 @@
 const API_BASE =
     "https://secure-chat-backend-eight.vercel.app/api";
 
+
 const VERIFY_DATE_API =
     `${API_BASE}/verify-date`;
+
 
 const LOGIN_API =
     `${API_BASE}/login`;
 
+
 const MESSAGES_API =
     `${API_BASE}/messages`;
+
 
 const LOGOUT_API =
     `${API_BASE}/logout`;
 
 
 // ============================================================
-// APPLICATION STATE
+// AUTHENTICATION STATE
 // ============================================================
 
-let chatInitialized = false;
+let dateToken = "";
 
-let messagePolling = null;
-
-let lastMessageSignature = "";
-
-let chatAuthenticated = false;
+let sessionToken = "";
 
 let csrfToken = "";
+
+let chatAuthenticated = false;
 
 
 // ============================================================
@@ -288,8 +290,6 @@ async function verifyDate() {
                 {
                     method: "POST",
 
-                    credentials: "include",
-
                     headers: {
                         "Content-Type":
                             "application/json",
@@ -309,18 +309,38 @@ async function verifyDate() {
             await response.json();
 
 
+        console.log(
+            "Date verification:",
+            response.status,
+            result
+        );
+
+
         if (
-            response.ok &&
-            result.success
+            !response.ok ||
+            !result.success
         ) {
 
-            showChatPasswordGate();
-
-        } else {
-
-            dateError.textContent =
-                "The date is not valid. Please try again.";
+            throw new Error(
+                result.error ||
+                "Invalid date."
+            );
         }
+
+
+        dateToken =
+            result.dateToken;
+
+
+        if (!dateToken) {
+
+            throw new Error(
+                "Server did not return a date token."
+            );
+        }
+
+
+        showChatPasswordGate();
 
 
     } catch (error) {
@@ -332,7 +352,9 @@ async function verifyDate() {
 
 
         dateError.textContent =
+            error.message ||
             "Unable to verify the date. Please try again.";
+
 
     } finally {
 
@@ -376,6 +398,19 @@ async function loginToChat(event) {
 
 
     if (!password) {
+
+        errorElement.textContent =
+            "Please enter your password.";
+
+        return;
+    }
+
+
+    if (!dateToken) {
+
+        errorElement.textContent =
+            "Date verification has expired. Please verify the date again.";
+
         return;
     }
 
@@ -396,8 +431,6 @@ async function loginToChat(event) {
                 {
                     method: "POST",
 
-                    credentials: "include",
-
                     headers: {
                         "Content-Type":
                             "application/json",
@@ -407,7 +440,12 @@ async function loginToChat(event) {
                     },
 
                     body: JSON.stringify({
-                        password: password
+
+                        password:
+                            password,
+
+                        dateToken:
+                            dateToken
                     })
                 }
             );
@@ -415,6 +453,13 @@ async function loginToChat(event) {
 
         const result =
             await response.json();
+
+
+        console.log(
+            "Login:",
+            response.status,
+            result.success
+        );
 
 
         if (
@@ -429,9 +474,23 @@ async function loginToChat(event) {
         }
 
 
+        sessionToken =
+            result.sessionToken;
+
+
         csrfToken =
             result.csrfToken || "";
 
+
+        if (!sessionToken) {
+
+            throw new Error(
+                "Server did not return a session token."
+            );
+        }
+
+
+        dateToken = "";
 
         chatAuthenticated = true;
 
@@ -471,6 +530,7 @@ async function loginToChat(event) {
 
 
         errorElement.textContent =
+            error.message ||
             "Incorrect password. Please try again.";
 
 
@@ -495,7 +555,7 @@ async function loginToChat(event) {
 
 async function loadMessages() {
 
-    if (!chatAuthenticated) {
+    if (!chatAuthenticated || !sessionToken) {
         return;
     }
 
@@ -508,14 +568,12 @@ async function loadMessages() {
                 {
                     method: "GET",
 
-                    credentials: "include",
-
                     headers: {
                         "Accept":
                             "application/json",
 
-                        "X-CSRF-Token":
-                            csrfToken
+                        "Authorization":
+                            `Bearer ${sessionToken}`
                     }
                 }
             );
@@ -532,23 +590,18 @@ async function loadMessages() {
         }
 
 
-        if (!response.ok) {
-
-            throw new Error(
-                `Server returned ${response.status}`
-            );
-        }
-
-
         const result =
             await response.json();
 
 
-        if (!result.success) {
+        if (
+            !response.ok ||
+            !result.success
+        ) {
 
             throw new Error(
                 result.error ||
-                "Failed to load messages"
+                "Failed to load messages."
             );
         }
 
@@ -571,7 +624,6 @@ async function loadMessages() {
         );
     }
 }
-
 
 // ============================================================
 // RENDER MESSAGES
@@ -729,15 +781,35 @@ function initializeChat() {
 // SEND MESSAGE
 // ============================================================
 
+// ============================================================
+// SEND MESSAGE
+// ============================================================
+
 async function sendMessage(event) {
 
     event.preventDefault();
 
 
-    if (!chatAuthenticated) {
+    // ========================================================
+    // AUTHENTICATION CHECK
+    // ========================================================
+
+    if (
+        !chatAuthenticated ||
+        !sessionToken
+    ) {
+
+        console.error(
+            "Cannot send message: user is not authenticated."
+        );
+
         return;
     }
 
+
+    // ========================================================
+    // GET ELEMENTS
+    // ========================================================
 
     const input =
         document.getElementById(
@@ -751,19 +823,80 @@ async function sendMessage(event) {
         );
 
 
-    const text =
-        input.value.trim();
+    if (!input || !button) {
 
+        console.error(
+            "Message input or send button was not found."
+        );
 
-    if (!text) {
         return;
     }
 
 
+    // ========================================================
+    // READ MESSAGE
+    // ========================================================
+
+    const text =
+        input.value.trim();
+
+
+    // ========================================================
+    // EMPTY MESSAGE CHECK
+    // ========================================================
+
+    if (!text) {
+
+        return;
+    }
+
+
+    // ========================================================
+    // MESSAGE LENGTH CHECK
+    // ========================================================
+
+    if (
+        text.length >
+        2000
+    ) {
+
+        alert(
+            "Message is too long. Maximum 2000 characters."
+        );
+
+        return;
+    }
+
+
+    // ========================================================
+    // DISABLE BUTTON
+    // ========================================================
+
+    button.disabled = true;
+
+
+    const originalButtonText =
+        button.textContent;
+
+
+    button.textContent =
+        "Sending...";
+
+
     try {
 
-        button.disabled = true;
-
+        // ====================================================
+        // SEND TO VERCEL
+        //
+        // Authentication is now:
+        //
+        // Authorization:
+        // Bearer <sessionToken>
+        //
+        // NO COOKIES
+        // NO credentials: include
+        // NO X-CSRF-Token
+        // ====================================================
 
         const response =
             await fetch(
@@ -771,30 +904,62 @@ async function sendMessage(event) {
                 {
                     method: "POST",
 
-                    credentials: "include",
-
                     headers: {
+
                         "Content-Type":
                             "application/json",
 
                         "Accept":
                             "application/json",
 
-                        "X-CSRF-Token":
-                            csrfToken
+                        "Authorization":
+                            `Bearer ${sessionToken}`
                     },
 
-                    body: JSON.stringify({
-                        text: text
-                    })
+                    body:
+                        JSON.stringify({
+
+                            text:
+                                text
+                        })
                 }
             );
 
+
+        // ====================================================
+        // READ SERVER RESPONSE
+        // ====================================================
+
+        let result = null;
+
+
+        try {
+
+            result =
+                await response.json();
+
+        } catch (jsonError) {
+
+            console.error(
+                "Server returned an invalid JSON response:",
+                jsonError
+            );
+        }
+
+
+        // ====================================================
+        // SESSION EXPIRED
+        // ====================================================
 
         if (
             response.status === 401 ||
             response.status === 403
         ) {
+
+            console.error(
+                "Authentication expired or rejected."
+            );
+
 
             handleAuthenticationExpired();
 
@@ -802,31 +967,74 @@ async function sendMessage(event) {
         }
 
 
+        // ====================================================
+        // SERVER ERROR
+        // ====================================================
+
         if (!response.ok) {
 
+            console.error(
+                "Send message failed:",
+                response.status,
+                result
+            );
+
+
             throw new Error(
-                `Server returned ${response.status}`
+
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : `Server returned ${response.status}`
             );
         }
 
 
-        const result =
-            await response.json();
+        // ====================================================
+        // APPLICATION ERROR
+        // ====================================================
 
-
-        if (!result.success) {
+        if (
+            !result ||
+            !result.success
+        ) {
 
             throw new Error(
-                result.error ||
-                "Failed to send message"
+
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : "Unable to send message."
             );
         }
 
+
+        // ====================================================
+        // SUCCESS
+        // ====================================================
+
+        console.log(
+            "Message sent successfully."
+        );
+
+
+        // Clear input
 
         input.value = "";
 
+
+        // Put cursor back in input
+
         input.focus();
 
+
+        // ====================================================
+        // REFRESH CHAT
+        // ====================================================
 
         await loadMessages();
 
@@ -840,16 +1048,24 @@ async function sendMessage(event) {
 
 
         alert(
+            error.message ||
             "Unable to send your message. Please try again."
         );
 
 
     } finally {
 
+        // ====================================================
+        // RE-ENABLE BUTTON
+        // ====================================================
+
         button.disabled = false;
+
+        button.textContent =
+            originalButtonText ||
+            "Send";
     }
 }
-
 
 // ============================================================
 // LOGOUT
@@ -867,11 +1083,14 @@ async function closeChat() {
             {
                 method: "POST",
 
-                credentials: "include",
-
                 headers: {
                     "Accept":
-                        "application/json"
+                        "application/json",
+
+                    "Authorization":
+                        sessionToken
+                            ? `Bearer ${sessionToken}`
+                            : ""
                 }
             }
         );
@@ -885,9 +1104,13 @@ async function closeChat() {
 
     } finally {
 
-        chatAuthenticated = false;
+        dateToken = "";
+
+        sessionToken = "";
 
         csrfToken = "";
+
+        chatAuthenticated = false;
 
 
         document.getElementById(
@@ -933,7 +1156,8 @@ async function closeChat() {
 
         document.getElementById(
             "sapContainer"
-        ).style.display = "block";
+        ).style.display =
+            "block";
 
 
         document.getElementById(
@@ -951,7 +1175,6 @@ async function closeChat() {
         lastMessageSignature = "";
     }
 }
-
 
 // ============================================================
 // AUTHENTICATION EXPIRED
