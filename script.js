@@ -174,7 +174,6 @@ function loadSapContent() {
         </p>
     `;
 
-
     document.getElementById(
         "sapText"
     ).innerHTML = sapContent;
@@ -231,7 +230,6 @@ function showChatPasswordGate() {
 // VERIFY DATE
 //
 // IMPORTANT:
-//
 // The target date is calculated ONLY by Vercel.
 // There is deliberately NO getTargetDate()
 // function in this frontend.
@@ -282,6 +280,15 @@ async function verifyDate() {
             "Checking...";
 
 
+        console.log(
+            "========== DATE VERIFICATION =========="
+        );
+
+        console.log(
+            "Date verification started."
+        );
+
+
         const response =
             await fetch(
                 VERIFY_DATE_API,
@@ -305,8 +312,20 @@ async function verifyDate() {
             );
 
 
+        console.log(
+            "Date verification HTTP status:",
+            response.status
+        );
+
+
         const result =
             await response.json();
+
+
+        console.log(
+            "Date verification response:",
+            result
+        );
 
 
         if (
@@ -314,9 +333,17 @@ async function verifyDate() {
             result.success
         ) {
 
+            console.log(
+                "DATE VERIFIED SUCCESSFULLY"
+            );
+
             showChatPasswordGate();
 
         } else {
+
+            console.error(
+                "DATE VERIFICATION FAILED"
+            );
 
             dateError.textContent =
                 "The date is not valid. Please try again.";
@@ -345,7 +372,7 @@ async function verifyDate() {
 
 
 // ============================================================
-// PASSWORD LOGIN
+// PASSWORD LOGIN - MOBILE DEBUG VERSION
 // ============================================================
 
 async function loginToChat(event) {
@@ -371,16 +398,28 @@ async function loginToChat(event) {
         );
 
 
+    if (!passwordInput) {
+
+        console.error(
+            "ERROR: chatPassword input not found."
+        );
+
+        return;
+    }
+
+
     const password =
         passwordInput.value;
 
 
     if (!password) {
+
         return;
     }
 
 
     errorElement.textContent = "";
+
 
     unlockButton.disabled = true;
 
@@ -388,7 +427,88 @@ async function loginToChat(event) {
         "Checking...";
 
 
+    // ========================================================
+    // SAFE DEBUG INFORMATION
+    // NEVER PRINT THE ACTUAL PASSWORD
+    // ========================================================
+
+    console.log(
+        "============================================"
+    );
+
+    console.log(
+        "        SECURE LOGIN DEBUG START"
+    );
+
+    console.log(
+        "============================================"
+    );
+
+
+    console.log(
+        "Browser:",
+        navigator.userAgent
+    );
+
+
+    console.log(
+        "Frontend origin:",
+        window.location.origin
+    );
+
+
+    console.log(
+        "Backend API:",
+        API_BASE
+    );
+
+
+    console.log(
+        "Password length:",
+        password.length
+    );
+
+
+    console.log(
+        "Password character codes:",
+        [...password].map(
+            character =>
+                character.charCodeAt(0)
+        )
+    );
+
+
+    /*
+     * IMPORTANT:
+     *
+     * We do NOT print the actual password.
+     */
+
+
+    console.log(
+        "Cookies visible to JavaScript BEFORE login:",
+        document.cookie
+    );
+
+
+    console.log(
+        "CSRF token currently stored:",
+        csrfToken
+            ? "YES"
+            : "NO"
+    );
+
+
+    // ========================================================
+    // LOGIN REQUEST
+    // ========================================================
+
     try {
+
+        console.log(
+            "Sending login request..."
+        );
+
 
         const response =
             await fetch(
@@ -396,6 +516,9 @@ async function loginToChat(event) {
                 {
                     method: "POST",
 
+                    /*
+                     * VERY IMPORTANT FOR MOBILE:
+                     */
                     credentials: "include",
 
                     headers: {
@@ -413,28 +536,453 @@ async function loginToChat(event) {
             );
 
 
+        console.log(
+            "LOGIN HTTP STATUS:",
+            response.status
+        );
+
+
+        console.log(
+            "LOGIN RESPONSE URL:",
+            response.url
+        );
+
+
+        // ====================================================
+        // RESPONSE HEADERS
+        // ====================================================
+
+        console.log(
+            "LOGIN RESPONSE HEADERS:"
+        );
+
+
+        for (
+            const [
+                key,
+                value
+            ]
+            of response.headers.entries()
+        ) {
+
+            /*
+             * Browsers normally prevent JavaScript from
+             * reading Set-Cookie.
+             *
+             * Therefore we don't expect to see the actual
+             * chat_session cookie here.
+             */
+
+            if (
+                key.toLowerCase() ===
+                "set-cookie"
+            ) {
+
+                console.log(
+                    "set-cookie: browser-managed/hidden"
+                );
+
+            } else {
+
+                console.log(
+                    `${key}:`,
+                    value
+                );
+            }
+        }
+
+
+        // ====================================================
+        // READ LOGIN RESPONSE
+        // ====================================================
+
         const result =
             await response.json();
 
+
+        console.log(
+            "LOGIN RESPONSE JSON:",
+            result
+        );
+
+
+        // ====================================================
+        // 401 = PASSWORD REJECTED
+        // ====================================================
+
+        if (
+            response.status ===
+            401
+        ) {
+
+            console.error(
+                "============================================"
+            );
+
+            console.error(
+                "BACKEND REJECTED THE PASSWORD"
+            );
+
+            console.error(
+                "============================================"
+            );
+
+
+            errorElement.textContent =
+                result.error ||
+                "Incorrect password. Please try again.";
+
+
+            passwordInput.value = "";
+
+            passwordInput.focus();
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // 403 = DATE GATE / SESSION PROBLEM
+        // ====================================================
+
+        if (
+            response.status ===
+            403
+        ) {
+
+            console.error(
+                "============================================"
+            );
+
+            console.error(
+                "LOGIN REJECTED WITH HTTP 403"
+            );
+
+            console.error(
+                "The date verification/session gate may have failed."
+            );
+
+            console.error(
+                "============================================"
+            );
+
+
+            errorElement.textContent =
+                result.error ||
+                "Date verification has expired. Please verify the date again.";
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // 500 = SERVER ERROR
+        // ====================================================
+
+        if (
+            response.status >=
+            500
+        ) {
+
+            console.error(
+                "============================================"
+            );
+
+            console.error(
+                "SERVER ERROR DURING LOGIN"
+            );
+
+            console.error(
+                "============================================"
+            );
+
+
+            errorElement.textContent =
+                result.error ||
+                "Authentication server error.";
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // GENERAL LOGIN FAILURE
+        // ====================================================
 
         if (
             !response.ok ||
             !result.success
         ) {
 
-            throw new Error(
-                result.error ||
-                "Invalid password."
+            console.error(
+                "LOGIN FAILED"
             );
+
+
+            errorElement.textContent =
+                result.error ||
+                "Incorrect password. Please try again.";
+
+
+            passwordInput.value = "";
+
+            passwordInput.focus();
+
+
+            return;
         }
 
+
+        // ====================================================
+        // PASSWORD ACCEPTED
+        // ====================================================
+
+        console.log(
+            "============================================"
+        );
+
+        console.log(
+            "PASSWORD ACCEPTED BY BACKEND"
+        );
+
+        console.log(
+            "============================================"
+        );
+
+
+        // ====================================================
+        // CSRF TOKEN
+        // ====================================================
 
         csrfToken =
             result.csrfToken || "";
 
 
+        console.log(
+            "CSRF token received:",
+            csrfToken
+                ? "YES"
+                : "NO"
+        );
+
+
+        console.log(
+            "CSRF token length:",
+            csrfToken.length
+        );
+
+
+        if (!csrfToken) {
+
+            console.error(
+                "LOGIN SUCCESSFUL BUT CSRF TOKEN IS MISSING."
+            );
+
+
+            errorElement.textContent =
+                "Login succeeded but the security token was not received.";
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // CHECK JAVASCRIPT-VISIBLE COOKIES
+        // ====================================================
+
+        console.log(
+            "Cookies visible to JavaScript AFTER login:",
+            document.cookie
+        );
+
+
+        console.log(
+            "IMPORTANT: chat_session is expected NOT to appear above because it is HttpOnly."
+        );
+
+
+        // ====================================================
+        // MARK AUTHENTICATED
+        // ====================================================
+
         chatAuthenticated = true;
 
+
+        // ====================================================
+        // TEST AUTHENTICATED SESSION
+        // BEFORE SHOWING CHAT
+        // ====================================================
+
+        console.log(
+            "Testing authenticated /messages endpoint..."
+        );
+
+
+        const sessionTestResponse =
+            await fetch(
+                `${MESSAGES_API}?limit=1`,
+                {
+                    method: "GET",
+
+                    /*
+                     * VERY IMPORTANT:
+                     * This sends the HTTP-only session cookie.
+                     */
+                    credentials: "include",
+
+                    headers: {
+                        "Accept":
+                            "application/json",
+
+                        "X-CSRF-Token":
+                            csrfToken
+                    }
+                }
+            );
+
+
+        console.log(
+            "MESSAGES TEST HTTP STATUS:",
+            sessionTestResponse.status
+        );
+
+
+        const sessionTestResult =
+            await sessionTestResponse.json();
+
+
+        console.log(
+            "MESSAGES TEST RESPONSE:",
+            sessionTestResult
+        );
+
+
+        // ====================================================
+        // SESSION FAILED
+        // ====================================================
+
+        if (
+            sessionTestResponse.status ===
+            401
+        ) {
+
+            console.error(
+                "============================================"
+            );
+
+            console.error(
+                "SESSION COOKIE WAS NOT ACCEPTED"
+            );
+
+            console.error(
+                "Password was correct, but backend rejected the session."
+            );
+
+            console.error(
+                "============================================"
+            );
+
+
+            chatAuthenticated = false;
+
+            csrfToken = "";
+
+
+            errorElement.textContent =
+                "Password accepted, but the secure mobile session could not be established.";
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // CSRF / DATE GATE FAILURE
+        // ====================================================
+
+        if (
+            sessionTestResponse.status ===
+            403
+        ) {
+
+            console.error(
+                "============================================"
+            );
+
+            console.error(
+                "SESSION REACHED BACKEND BUT CSRF/DATE CHECK FAILED"
+            );
+
+            console.error(
+                "============================================"
+            );
+
+
+            chatAuthenticated = false;
+
+
+            errorElement.textContent =
+                sessionTestResult.error ||
+                "Security verification failed.";
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // OTHER FAILURE
+        // ====================================================
+
+        if (
+            !sessionTestResponse.ok ||
+            !sessionTestResult.success
+        ) {
+
+            console.error(
+                "Authenticated session test failed."
+            );
+
+
+            chatAuthenticated = false;
+
+
+            errorElement.textContent =
+                "Secure session could not be verified.";
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // SESSION VERIFIED
+        // ====================================================
+
+        console.log(
+            "============================================"
+        );
+
+        console.log(
+            "SESSION VERIFIED SUCCESSFULLY"
+        );
+
+        console.log(
+            "CHAT AUTHENTICATION COMPLETE"
+        );
+
+        console.log(
+            "============================================"
+        );
+
+
+        // ====================================================
+        // SHOW AUTHENTICATED CHAT
+        // ====================================================
 
         document
             .getElementById(
@@ -465,18 +1013,24 @@ async function loginToChat(event) {
     } catch (error) {
 
         console.error(
-            "Login error:",
+            "============================================"
+        );
+
+        console.error(
+            "LOGIN REQUEST EXCEPTION"
+        );
+
+        console.error(
             error
+        );
+
+        console.error(
+            "============================================"
         );
 
 
         errorElement.textContent =
-            "Incorrect password. Please try again.";
-
-
-        passwordInput.value = "";
-
-        passwordInput.focus();
+            "Unable to connect to the authentication server.";
 
 
     } finally {
@@ -485,6 +1039,11 @@ async function loginToChat(event) {
 
         unlockButton.textContent =
             "Unlock Chat";
+
+
+        console.log(
+            "========== LOGIN DEBUG END =========="
+        );
     }
 }
 
@@ -496,6 +1055,17 @@ async function loginToChat(event) {
 async function loadMessages() {
 
     if (!chatAuthenticated) {
+
+        return;
+    }
+
+
+    if (!csrfToken) {
+
+        console.error(
+            "Cannot load messages: CSRF token missing."
+        );
+
         return;
     }
 
@@ -508,6 +1078,9 @@ async function loadMessages() {
                 {
                     method: "GET",
 
+                    /*
+                     * Sends HTTP-only chat_session cookie.
+                     */
                     credentials: "include",
 
                     headers: {
@@ -521,10 +1094,37 @@ async function loadMessages() {
             );
 
 
+        console.log(
+            "Messages GET status:",
+            response.status
+        );
+
+
         if (
-            response.status === 401 ||
-            response.status === 403
+            response.status ===
+            401
         ) {
+
+            console.error(
+                "Messages request returned 401."
+            );
+
+
+            handleAuthenticationExpired();
+
+            return;
+        }
+
+
+        if (
+            response.status ===
+            403
+        ) {
+
+            console.error(
+                "Messages request returned 403."
+            );
+
 
             handleAuthenticationExpired();
 
@@ -586,6 +1186,7 @@ function renderMessages(messages) {
 
 
     if (!Array.isArray(messages)) {
+
         return;
     }
 
@@ -598,6 +1199,7 @@ function renderMessages(messages) {
         signature ===
         lastMessageSignature
     ) {
+
         return;
     }
 
@@ -683,6 +1285,13 @@ function startMessagePolling() {
 
     stopMessagePolling();
 
+
+    if (!chatAuthenticated) {
+
+        return;
+    }
+
+
     loadMessages();
 
 
@@ -735,6 +1344,21 @@ async function sendMessage(event) {
 
 
     if (!chatAuthenticated) {
+
+        console.warn(
+            "Cannot send message: user is not authenticated."
+        );
+
+        return;
+    }
+
+
+    if (!csrfToken) {
+
+        console.error(
+            "Cannot send message: CSRF token missing."
+        );
+
         return;
     }
 
@@ -756,6 +1380,7 @@ async function sendMessage(event) {
 
 
     if (!text) {
+
         return;
     }
 
@@ -771,6 +1396,9 @@ async function sendMessage(event) {
                 {
                     method: "POST",
 
+                    /*
+                     * Sends HTTP-only session cookie.
+                     */
                     credentials: "include",
 
                     headers: {
@@ -791,9 +1419,26 @@ async function sendMessage(event) {
             );
 
 
+        console.log(
+            "Send message HTTP status:",
+            response.status
+        );
+
+
         if (
-            response.status === 401 ||
-            response.status === 403
+            response.status ===
+            401
+        ) {
+
+            handleAuthenticationExpired();
+
+            return;
+        }
+
+
+        if (
+            response.status ===
+            403
         ) {
 
             handleAuthenticationExpired();
@@ -852,7 +1497,7 @@ async function sendMessage(event) {
 
 
 // ============================================================
-// LOGOUT
+// LOGOUT / CLOSE CHAT
 // ============================================================
 
 async function closeChat() {
@@ -875,6 +1520,12 @@ async function closeChat() {
                 }
             }
         );
+
+
+        console.log(
+            "Logout request completed."
+        );
+
 
     } catch (error) {
 
@@ -933,7 +1584,8 @@ async function closeChat() {
 
         document.getElementById(
             "sapContainer"
-        ).style.display = "block";
+        ).style.display =
+            "block";
 
 
         document.getElementById(
@@ -959,6 +1611,11 @@ async function closeChat() {
 
 function handleAuthenticationExpired() {
 
+    console.error(
+        "Authentication/session expired or was rejected."
+    );
+
+
     chatAuthenticated = false;
 
     csrfToken = "";
@@ -967,35 +1624,46 @@ function handleAuthenticationExpired() {
     stopMessagePolling();
 
 
-    document.getElementById(
-        "askmeContainer"
-    ).classList.remove(
-        "visible"
-    );
+    document
+        .getElementById(
+            "askmeContainer"
+        )
+        .classList.remove(
+            "visible"
+        );
 
 
-    document.getElementById(
-        "authenticatedChat"
-    ).classList.remove(
-        "visible"
-    );
+    document
+        .getElementById(
+            "authenticatedChat"
+        )
+        .classList.remove(
+            "visible"
+        );
 
 
-    document.getElementById(
-        "chatPasswordGate"
-    ).classList.remove(
-        "visible"
-    );
+    document
+        .getElementById(
+            "chatPasswordGate"
+        )
+        .classList.remove(
+            "visible"
+        );
 
 
-    document.getElementById(
-        "sapContainer"
-    ).style.display = "block";
+    document
+        .getElementById(
+            "sapContainer"
+        )
+        .style.display =
+            "block";
 
 
-    document.getElementById(
-        "dateInput"
-    ).value = "";
+    document
+        .getElementById(
+            "dateInput"
+        )
+        .value = "";
 
 
     chatInitialized = false;
@@ -1004,13 +1672,13 @@ function handleAuthenticationExpired() {
 
 
     alert(
-        "Your chat session has expired. Please enter the date and password again."
+        "Your secure chat session has expired. Please enter the date and password again."
     );
 }
 
 
 // ============================================================
-// ERROR
+// ERROR DISPLAY
 // ============================================================
 
 function showChatError(message) {
@@ -1051,6 +1719,17 @@ function showChatError(message) {
 document.addEventListener(
     "DOMContentLoaded",
     () => {
+
+        console.log(
+            "Secure chat frontend loaded."
+        );
+
+
+        console.log(
+            "Backend API:",
+            API_BASE
+        );
+
 
         loadSapContent();
 
