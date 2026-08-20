@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -24,7 +23,6 @@
 
 
 <body>
-
 
     <!-- =====================================================
          MENU
@@ -111,7 +109,9 @@
             </div>
 
 
-            <!-- DATE -->
+            <!-- =================================================
+                 DATE VERIFICATION
+            ================================================== -->
 
             <div class="date-selector-container">
 
@@ -123,22 +123,23 @@
                 </label>
 
 
-                <input
-                    type="text"
-                    id="dateInput"
-                    placeholder="YYYY-MM-DD"
-                    maxlength="10"
-                    inputmode="numeric"
-                    autocomplete="off"
-                >
+                <div class="date-input-row">
+
+                    <input
+                        type="date"
+                        id="dateInput"
+                        autocomplete="off"
+                    >
 
 
-                <button
-                    type="button"
-                    id="verifyDateButton"
-                >
-                    Continue
-                </button>
+                    <button
+                        type="button"
+                        id="verifyDateButton"
+                    >
+                        Continue
+                    </button>
+
+                </div>
 
 
                 <div
@@ -154,7 +155,7 @@
 
 
     <!-- =====================================================
-         CHAT CONTAINER
+         SECURE CHAT CONTAINER
     ====================================================== -->
 
     <section
@@ -162,8 +163,9 @@
         aria-label="Secure Chat"
     >
 
-
-        <!-- CHAT HEADER -->
+        <!-- =================================================
+             CHAT HEADER
+        ================================================== -->
 
         <div id="askmeHeader">
 
@@ -297,7 +299,6 @@
             </form>
 
         </div>
-
 
     </section>
 

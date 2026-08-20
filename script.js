@@ -38,24 +38,6 @@ let csrfToken =
     "";
 
 
-/*
- * IMPORTANT:
- *
- * The date token is stored only in memory.
- *
- * It is NOT stored in:
- *
- * - localStorage
- * - sessionStorage
- * - cookies
- *
- * It disappears when the page is refreshed.
- */
-
-let dateVerificationToken =
-    "";
-
-
 let messagePolling =
     null;
 
@@ -80,6 +62,7 @@ function loadSapContent() {
             with external applications and services.
         </p>
 
+
         <h3>Key Features:</h3>
 
         <p>
@@ -99,6 +82,7 @@ function loadSapContent() {
             Provides consistent integration patterns and
             interfaces.
         </p>
+
 
         <h3>Implementation Best Practices:</h3>
 
@@ -132,6 +116,7 @@ function loadSapContent() {
             maintenance.
         </p>
 
+
         <h3>Future Trends:</h3>
 
         <p>
@@ -164,68 +149,76 @@ function loadSapContent() {
 
 function showChatPasswordGate() {
 
-    document
-        .getElementById(
+    const chatContainer =
+        document.getElementById(
             "askmeContainer"
-        )
-        .classList.add(
-            "visible"
         );
 
 
-    document
-        .getElementById(
+    const passwordGate =
+        document.getElementById(
             "chatPasswordGate"
-        )
-        .classList.add(
-            "visible"
         );
 
 
-    document
-        .getElementById(
+    const authenticatedChat =
+        document.getElementById(
             "authenticatedChat"
-        )
-        .classList.remove(
-            "visible"
         );
 
 
-    document
-        .getElementById(
+    const sapContainer =
+        document.getElementById(
             "sapContainer"
-        )
-        .style.display =
+        );
+
+
+    const passwordError =
+        document.getElementById(
+            "passwordError"
+        );
+
+
+    const passwordInput =
+        document.getElementById(
+            "chatPassword"
+        );
+
+
+    chatContainer.classList.add(
+        "visible"
+    );
+
+
+    passwordGate.classList.add(
+        "visible"
+    );
+
+
+    authenticatedChat.classList.remove(
+        "visible"
+    );
+
+
+    sapContainer.style.display =
         "none";
 
 
-    document
-        .getElementById(
-            "passwordError"
-        )
-        .textContent =
+    passwordError.textContent =
         "";
 
 
-    document
-        .getElementById(
-            "chatPassword"
-        )
-        .value =
+    passwordInput.value =
         "";
 
 
     setTimeout(
         () => {
 
-            document
-                .getElementById(
-                    "chatPassword"
-                )
-                .focus();
+            passwordInput.focus();
 
         },
-        100
+        150
     );
 }
 
@@ -233,8 +226,14 @@ function showChatPasswordGate() {
 // ============================================================
 // VERIFY DATE
 //
+// IMPORTANT:
+//
 // getTargetDate() is NOT present here.
-// The backend performs the date calculation.
+//
+// The backend calculates today's date - 10 days.
+// The backend creates an HttpOnly date_gate cookie.
+//
+// The frontend only sends the date supplied by the user.
 // ============================================================
 
 async function verifyDate() {
@@ -249,17 +248,15 @@ async function verifyDate() {
 
 
     const dateError =
-        document
-            .getElementById(
-                "dateError"
-            );
+        document.getElementById(
+            "dateError"
+        );
 
 
     const button =
-        document
-            .getElementById(
-                "verifyDateButton"
-            );
+        document.getElementById(
+            "verifyDateButton"
+        );
 
 
     dateError.textContent =
@@ -267,18 +264,17 @@ async function verifyDate() {
 
 
     // ========================================================
-    // FORMAT
+    // DATE FORMAT
     // ========================================================
 
     if (
-        !/^\d{4}-\d{2}-\d{2}$/
-            .test(
-                dateInput
-            )
+        !/^\d{4}-\d{2}-\d{2}$/.test(
+            dateInput
+        )
     ) {
 
         dateError.textContent =
-            "Please enter the date in YYYY-MM-DD format.";
+            "Please select a valid date.";
 
         return;
     }
@@ -294,6 +290,12 @@ async function verifyDate() {
             "Checking...";
 
 
+        console.log(
+            "Verifying date:",
+            dateInput
+        );
+
+
         const response =
             await fetch(
 
@@ -304,13 +306,20 @@ async function verifyDate() {
                         "POST",
 
                     /*
-                     * Credentials are not required for
-                     * date verification anymore because
-                     * the date gate is token-based.
+                     * VERY IMPORTANT.
+                     *
+                     * The backend creates:
+                     *
+                     * date_gate=...
+                     *
+                     * as an HttpOnly cookie.
+                     *
+                     * The browser must be allowed
+                     * to store that cookie.
                      */
 
                     credentials:
-                        "omit",
+                        "include",
 
                     headers: {
 
@@ -331,37 +340,76 @@ async function verifyDate() {
             );
 
 
-        const result =
-            await response.json();
+        let result = {};
 
+        try {
+
+            result =
+                await response.json();
+
+        } catch (jsonError) {
+
+            console.error(
+                "Unable to parse date response:",
+                jsonError
+            );
+
+        }
+
+
+        console.log(
+            "Date verification response:",
+            response.status,
+            result
+        );
+
+
+        // ====================================================
+        // SUCCESS
+        // ====================================================
 
         if (
             response.ok &&
-            result.success &&
-            result.dateToken
+            result.success === true
         ) {
 
             /*
-             * Store only in memory.
+             * DO NOT look for result.dateToken.
+             *
+             * The backend stores the date verification
+             * in the HttpOnly date_gate cookie.
              */
-
-            dateVerificationToken =
-                result.dateToken;
-
 
             showChatPasswordGate();
 
+            return;
+        }
 
-        } else {
 
-            dateVerificationToken =
-                "";
+        // ====================================================
+        // DATE REJECTED
+        // ====================================================
 
+        if (
+            response.status ===
+            401
+        ) {
 
             dateError.textContent =
                 result.error ||
-                "The date is not valid. Please try again.";
+                "The date is not valid.";
+
+            return;
         }
+
+
+        // ====================================================
+        // SERVER ERROR
+        // ====================================================
+
+        dateError.textContent =
+            result.error ||
+            `Unable to verify the date. Server returned ${response.status}.`;
 
 
     } catch (error) {
@@ -372,13 +420,8 @@ async function verifyDate() {
         );
 
 
-        dateVerificationToken =
-            "";
-
-
         dateError.textContent =
-            "Unable to verify the date. Please try again.";
-
+            "Unable to connect to the date verification server.";
 
     } finally {
 
@@ -394,6 +437,13 @@ async function verifyDate() {
 
 // ============================================================
 // PASSWORD LOGIN
+//
+// IMPORTANT:
+//
+// There is NO dateToken here.
+//
+// The backend gets date_gate automatically from
+// the HttpOnly cookie created by /api/verify-date.
 // ============================================================
 
 async function loginToChat(
@@ -404,48 +454,26 @@ async function loginToChat(
 
 
     const passwordInput =
-        document
-            .getElementById(
-                "chatPassword"
-            );
+        document.getElementById(
+            "chatPassword"
+        );
 
 
     const errorElement =
-        document
-            .getElementById(
-                "passwordError"
-            );
+        document.getElementById(
+            "passwordError"
+        );
 
 
     const unlockButton =
-        document
-            .getElementById(
-                "unlockButton"
-            );
+        document.getElementById(
+            "unlockButton"
+        );
 
 
     const password =
         passwordInput.value;
 
-
-    // ========================================================
-    // DATE TOKEN CHECK
-    // ========================================================
-
-    if (
-        !dateVerificationToken
-    ) {
-
-        errorElement.textContent =
-            "Date verification is required. Please verify the date again.";
-
-        return;
-    }
-
-
-    // ========================================================
-    // PASSWORD CHECK
-    // ========================================================
 
     if (!password) {
 
@@ -479,6 +507,11 @@ async function loginToChat(
                     method:
                         "POST",
 
+                    /*
+                     * Sends the date_gate cookie
+                     * to the backend.
+                     */
+
                     credentials:
                         "include",
 
@@ -491,52 +524,71 @@ async function loginToChat(
                             "application/json"
                     },
 
+                    /*
+                     * ONLY password is sent.
+                     *
+                     * date_gate is sent automatically
+                     * as a cookie.
+                     */
+
                     body:
                         JSON.stringify({
 
                             password:
-                                password,
-
-                            dateToken:
-                                dateVerificationToken
+                                password
                         })
                 }
             );
 
 
-        const result =
-            await response.json();
+        let result = {};
+
+        try {
+
+            result =
+                await response.json();
+
+        } catch (jsonError) {
+
+            console.error(
+                "Unable to parse login response:",
+                jsonError
+            );
+
+        }
+
+
+        console.log(
+            "Login response:",
+            response.status,
+            result
+        );
 
 
         // ====================================================
-        // DATE TOKEN EXPIRED
+        // DATE VERIFICATION REQUIRED
         // ====================================================
 
         if (
             response.status ===
-                403
+            403
         ) {
-
-            dateVerificationToken =
-                "";
-
 
             errorElement.textContent =
                 result.error ||
-                "Date verification expired. Please verify the date again.";
-
+                "Date verification is required. Please verify the date again.";
 
             return;
         }
 
 
         // ====================================================
-        // PASSWORD ERROR
+        // INVALID PASSWORD
         // ====================================================
 
         if (
             response.status ===
-                401
+            401
         ) {
 
             errorElement.textContent =
@@ -551,9 +603,13 @@ async function loginToChat(
         }
 
 
+        // ====================================================
+        // OTHER ERROR
+        // ====================================================
+
         if (
             !response.ok ||
-            !result.success
+            result.success !== true
         ) {
 
             throw new Error(
@@ -565,7 +621,7 @@ async function loginToChat(
 
 
         // ====================================================
-        // LOGIN SUCCESS
+        // CSRF TOKEN
         // ====================================================
 
         csrfToken =
@@ -581,15 +637,15 @@ async function loginToChat(
         }
 
 
+        // ====================================================
+        // LOGIN SUCCESS
+        // ====================================================
+
         chatAuthenticated =
             true;
 
 
-        /*
-         * Date token is no longer needed after login.
-         */
-
-        dateVerificationToken =
+        passwordInput.value =
             "";
 
 
@@ -611,20 +667,13 @@ async function loginToChat(
             );
 
 
-        passwordInput.value =
-            "";
-
-
-        if (
-            !chatInitialized
-        ) {
+        if (!chatInitialized) {
 
             initializeChat();
 
             chatInitialized =
                 true;
         }
-
 
     } catch (error) {
 
@@ -637,7 +686,6 @@ async function loginToChat(
         errorElement.textContent =
             error.message ||
             "Unable to unlock chat.";
-
 
     } finally {
 
@@ -657,9 +705,7 @@ async function loginToChat(
 
 async function loadMessages() {
 
-    if (
-        !chatAuthenticated
-    ) {
+    if (!chatAuthenticated) {
 
         return;
     }
@@ -697,9 +743,9 @@ async function loadMessages() {
 
         if (
             response.status ===
-                401 ||
+            401 ||
             response.status ===
-                403
+            403
         ) {
 
             handleAuthenticationExpired();
@@ -708,9 +754,7 @@ async function loadMessages() {
         }
 
 
-        if (
-            !response.ok
-        ) {
+        if (!response.ok) {
 
             throw new Error(
                 `Server returned ${response.status}`
@@ -737,7 +781,6 @@ async function loadMessages() {
         renderMessages(
             result.messages
         );
-
 
     } catch (error) {
 
@@ -913,11 +956,13 @@ function stopMessagePolling() {
 
 function initializeChat() {
 
-    document
-        .getElementById(
+    const chat =
+        document.getElementById(
             "askme"
-        )
-        .innerHTML =
+        );
+
+
+    chat.innerHTML =
         "";
 
 
@@ -1010,11 +1055,15 @@ async function sendMessage(
             );
 
 
+        // ====================================================
+        // SESSION EXPIRED
+        // ====================================================
+
         if (
             response.status ===
-                401 ||
+            401 ||
             response.status ===
-                403
+            403
         ) {
 
             handleAuthenticationExpired();
@@ -1023,9 +1072,7 @@ async function sendMessage(
         }
 
 
-        if (
-            !response.ok
-        ) {
+        if (!response.ok) {
 
             throw new Error(
                 `Server returned ${response.status}`
@@ -1058,7 +1105,6 @@ async function sendMessage(
 
         await loadMessages();
 
-
     } catch (error) {
 
         console.error(
@@ -1070,7 +1116,6 @@ async function sendMessage(
         alert(
             "Unable to send your message. Please try again."
         );
-
 
     } finally {
 
@@ -1110,14 +1155,12 @@ async function closeChat() {
             }
         );
 
-
     } catch (error) {
 
         console.error(
             "Logout error:",
             error
         );
-
 
     } finally {
 
@@ -1140,10 +1183,6 @@ function resetChatState() {
         "";
 
 
-    dateVerificationToken =
-        "";
-
-
     chatInitialized =
         false;
 
@@ -1155,87 +1194,137 @@ function resetChatState() {
     stopMessagePolling();
 
 
-    document
-        .getElementById(
+    const dateInput =
+        document.getElementById(
             "dateInput"
-        )
-        .value =
-        "";
+        );
 
 
-    document
-        .getElementById(
+    const dateError =
+        document.getElementById(
             "dateError"
-        )
-        .textContent =
-        "";
+        );
 
 
-    document
-        .getElementById(
+    const passwordInput =
+        document.getElementById(
             "chatPassword"
-        )
-        .value =
-        "";
+        );
 
 
-    document
-        .getElementById(
+    const passwordError =
+        document.getElementById(
             "passwordError"
-        )
-        .textContent =
-        "";
+        );
 
 
-    document
-        .getElementById(
+    const passwordGate =
+        document.getElementById(
             "chatPasswordGate"
-        )
-        .classList.remove(
-            "visible"
         );
 
 
-    document
-        .getElementById(
+    const authenticatedChat =
+        document.getElementById(
             "authenticatedChat"
-        )
-        .classList.remove(
-            "visible"
         );
 
 
-    document
-        .getElementById(
+    const chatContainer =
+        document.getElementById(
             "askmeContainer"
-        )
-        .classList.remove(
-            "visible"
         );
 
 
-    document
-        .getElementById(
+    const sapContainer =
+        document.getElementById(
             "sapContainer"
-        )
-        .style.display =
-        "block";
+        );
 
 
-    document
-        .getElementById(
+    const chat =
+        document.getElementById(
             "askme"
-        )
-        .innerHTML =
-        "";
+        );
 
 
-    document
-        .getElementById(
+    const messageInput =
+        document.getElementById(
             "msg"
-        )
-        .value =
-        "";
+        );
+
+
+    if (dateInput) {
+
+        dateInput.value =
+            "";
+    }
+
+
+    if (dateError) {
+
+        dateError.textContent =
+            "";
+    }
+
+
+    if (passwordInput) {
+
+        passwordInput.value =
+            "";
+    }
+
+
+    if (passwordError) {
+
+        passwordError.textContent =
+            "";
+    }
+
+
+    if (passwordGate) {
+
+        passwordGate.classList.remove(
+            "visible"
+        );
+    }
+
+
+    if (authenticatedChat) {
+
+        authenticatedChat.classList.remove(
+            "visible"
+        );
+    }
+
+
+    if (chatContainer) {
+
+        chatContainer.classList.remove(
+            "visible"
+        );
+    }
+
+
+    if (sapContainer) {
+
+        sapContainer.style.display =
+            "block";
+    }
+
+
+    if (chat) {
+
+        chat.innerHTML =
+            "";
+    }
+
+
+    if (messageInput) {
+
+        messageInput.value =
+            "";
+    }
 }
 
 
@@ -1302,24 +1391,46 @@ document.addEventListener(
 
     () => {
 
+        console.log(
+            "Secure chat frontend loaded."
+        );
+
+
         loadSapContent();
 
 
-        document
-            .getElementById(
+        // ====================================================
+        // DATE BUTTON
+        // ====================================================
+
+        const verifyButton =
+            document.getElementById(
                 "verifyDateButton"
-            )
-            .addEventListener(
-                "click",
-                verifyDate
             );
 
 
-        document
-            .getElementById(
+        if (verifyButton) {
+
+            verifyButton.addEventListener(
+                "click",
+                verifyDate
+            );
+        }
+
+
+        // ====================================================
+        // DATE ENTER KEY
+        // ====================================================
+
+        const dateInput =
+            document.getElementById(
                 "dateInput"
-            )
-            .addEventListener(
+            );
+
+
+        if (dateInput) {
+
+            dateInput.addEventListener(
 
                 "keydown",
 
@@ -1336,45 +1447,83 @@ document.addEventListener(
                     }
                 }
             );
+        }
 
 
-        document
-            .getElementById(
+        // ====================================================
+        // PASSWORD FORM
+        // ====================================================
+
+        const passwordForm =
+            document.getElementById(
                 "passwordForm"
-            )
-            .addEventListener(
+            );
+
+
+        if (passwordForm) {
+
+            passwordForm.addEventListener(
                 "submit",
                 loginToChat
             );
+        }
 
 
-        document
-            .getElementById(
+        // ====================================================
+        // CANCEL
+        // ====================================================
+
+        const cancelButton =
+            document.getElementById(
                 "cancelPasswordBtn"
-            )
-            .addEventListener(
-                "click",
-                closeChat
             );
 
 
-        document
-            .getElementById(
+        if (cancelButton) {
+
+            cancelButton.addEventListener(
+                "click",
+                closeChat
+            );
+        }
+
+
+        // ====================================================
+        // CHAT FORM
+        // ====================================================
+
+        const chatForm =
+            document.getElementById(
                 "form"
-            )
-            .addEventListener(
+            );
+
+
+        if (chatForm) {
+
+            chatForm.addEventListener(
                 "submit",
                 sendMessage
             );
+        }
 
 
-        document
-            .getElementById(
+        // ====================================================
+        // CLOSE CHAT
+        // ====================================================
+
+        const closeButton =
+            document.getElementById(
                 "closeaskmeBtn"
-            )
-            .addEventListener(
+            );
+
+
+        if (closeButton) {
+
+            closeButton.addEventListener(
                 "click",
                 closeChat
             );
+        }
+
     }
 );
