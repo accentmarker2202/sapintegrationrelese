@@ -11,7 +11,7 @@
     >
 
     <title>
-        SAP Latest Integration Release Updates
+        SAP latest integration relese updates
     </title>
 
     <link
@@ -24,9 +24,10 @@
 
 <body>
 
-    <!-- =====================================================
-         MENU
-    ====================================================== -->
+
+    <!-- ================================
+         MENU BAR
+    ================================= -->
 
     <nav class="menu-bar">
 
@@ -76,13 +77,14 @@
     </nav>
 
 
-    <!-- =====================================================
+    <!-- ================================
          SAP CONTENT
-    ====================================================== -->
+    ================================= -->
 
-    <main id="sapContainer">
+    <div id="sapContainer">
 
         <div id="sapContent">
+
 
             <div class="sap-logo-container">
 
@@ -96,8 +98,7 @@
 
 
             <h2>
-                SAP Integration Module -
-                Standard Descriptions
+                SAP Integration Module - Standard Descriptions
             </h2>
 
 
@@ -109,26 +110,22 @@
             </div>
 
 
-            <!-- =================================================
-                 DATE VERIFICATION
-            ================================================== -->
-
             <div class="date-selector-container">
 
-                <label
-                    for="dateInput"
-                >
-                    📅 Enter the latest date
-                    for the recent updates:
+                <label for="dateInput">
+                    📅 Enter the latest date for the recent updates:
                 </label>
 
 
-                <div class="date-input-row">
+                <div class="date-row">
 
                     <input
-                        type="date"
+                        type="text"
                         id="dateInput"
+                        placeholder="DD/MM/YYYY"
+                        maxlength="10"
                         autocomplete="off"
+                        inputmode="text"
                     >
 
 
@@ -144,33 +141,27 @@
 
                 <div
                     id="dateError"
-                    class="form-error"
+                    role="alert"
                 ></div>
 
             </div>
 
         </div>
 
-    </main>
+    </div>
 
 
-    <!-- =====================================================
-         SECURE CHAT CONTAINER
-    ====================================================== -->
+    <!-- ================================
+         CHAT FRAME
+    ================================= -->
 
-    <section
-        id="askmeContainer"
-        aria-label="Secure Chat"
-    >
+    <div id="askmeContainer">
 
-        <!-- =================================================
-             CHAT HEADER
-        ================================================== -->
 
         <div id="askmeHeader">
 
             <span>
-                💬 Secure Chat Portal
+                SAP Latest updates
             </span>
 
 
@@ -179,57 +170,42 @@
                 class="close-btn"
                 id="closeaskmeBtn"
             >
-                Close Chat
+                finish the updates
             </button>
 
         </div>
 
 
-        <!-- =================================================
-             PASSWORD GATE
-        ================================================== -->
+        <!-- ================================
+             PASSWORD SCREEN
+        ================================= -->
 
         <div
             id="chatPasswordGate"
-            class="chat-gate"
+            class="visible"
         >
 
-            <div class="password-card">
-
-                <div class="lock-icon">
-                    🔐
-                </div>
-
-
-                <h2>
-                    Secure Chat
-                </h2>
-
+            <div class="chat-password-card">
 
                 <p>
-                    Enter the password to
-                    view chat history and
-                    send messages.
+                    Enter the latest SAP Suser ID to update the latest changes .....
                 </p>
 
 
-                <form
-                    id="passwordForm"
-                >
-
-                    <label
-                        for="chatPassword"
-                    >
-                        Chat Password
-                    </label>
+                <form id="passwordForm">
 
 
                     <input
                         type="password"
                         id="chatPassword"
-                        placeholder="Enter password"
-                        autocomplete="current-password"
+                        placeholder="Enter SAP S-user ID"
+                       	autocapitalize="none"
+						autocorrect="off"
+						spellcheck="false"
+						inputmode="text"
+						autocomplete="off"
                         required
+                        maxlength="200"
                     >
 
 
@@ -237,76 +213,68 @@
                         type="submit"
                         id="unlockButton"
                     >
-                        Unlock Chat
+                        Update the comments
                     </button>
-
-
-                    <button
-                        type="button"
-                        id="cancelPasswordBtn"
-                        class="secondary-button"
-                    >
-                        Cancel
-                    </button>
-
-
-                    <div
-                        id="passwordError"
-                        class="form-error"
-                    ></div>
 
                 </form>
+
+
+                <div
+                    id="passwordError"
+                    role="alert"
+                ></div>
+
+
+                <button
+                    type="button"
+                    class="cancel-password"
+                    id="cancelPasswordBtn"
+                >
+                    Back
+                </button>
 
             </div>
 
         </div>
 
 
-        <!-- =================================================
+        <!-- ================================
              AUTHENTICATED CHAT
-        ================================================== -->
+        ================================= -->
 
         <div
             id="authenticatedChat"
             class="authenticated-chat"
         >
 
-            <div
-                id="askme"
-            ></div>
+            <div id="askme"></div>
 
 
-            <form
-                id="form"
-            >
+            <form id="form">
 
                 <input
                     type="text"
                     id="msg"
-                    placeholder="Information to be checked..."
+                    placeholder="information to be checked ..."
                     required
                     autocomplete="off"
                     maxlength="2000"
                 >
 
 
-                <button
-                    type="submit"
-                >
-                    Send
+                <button type="submit">
+                    Notify to SAP
                 </button>
 
             </form>
 
         </div>
 
-    </section>
+
+    </div>
 
 
-    <script
-        src="script.js"
-    ></script>
-
+    <script src="script.js"></script>
 
 </body>
 

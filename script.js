@@ -1,101 +1,147 @@
 // ============================================================
-// API CONFIGURATION
+// VERCEL BACKEND URL
 // ============================================================
 
-const BACKEND_URL =
-    "https://secure-chat-backend-eight.vercel.app";
-
+const API_BASE =
+    "https://secure-chat-backend-eight.vercel.app/api";
 
 const VERIFY_DATE_API =
-    `${BACKEND_URL}/api/verify-date`;
-
+    `${API_BASE}/verify-date`;
 
 const LOGIN_API =
-    `${BACKEND_URL}/api/login`;
-
+    `${API_BASE}/login`;
 
 const MESSAGES_API =
-    `${BACKEND_URL}/api/messages`;
-
+    `${API_BASE}/messages`;
 
 const LOGOUT_API =
-    `${BACKEND_URL}/api/logout`;
+    `${API_BASE}/logout`;
 
 
 // ============================================================
 // APPLICATION STATE
 // ============================================================
 
-let chatInitialized =
-    false;
+let chatInitialized = false;
 
+let messagePolling = null;
 
-let chatAuthenticated =
-    false;
+let lastMessageSignature = "";
 
+let chatAuthenticated = false;
 
-let csrfToken =
-    "";
-
-
-let messagePolling =
-    null;
-
-
-let lastMessageSignature =
-    "";
+let csrfToken = "";
 
 
 // ============================================================
-// SAP CONTENT
+// LOAD SAP CONTENT
 // ============================================================
 
 function loadSapContent() {
 
     const sapContent = `
-
-        <h3>Overview:</h3>
+        <h3>What is SAP Integration Module?</h3>
 
         <p>
-            The SAP Integration Module provides standardized
-            integration capabilities for connecting SAP systems
-            with external applications and services.
+            The SAP Integration Module is a comprehensive suite of
+            tools and services designed to connect various business
+            systems, applications, and data sources within an
+            enterprise environment. It provides seamless integration
+            between SAP systems and third-party applications, enabling
+            real-time data synchronization and process automation.
         </p>
-
 
         <h3>Key Features:</h3>
 
         <p>
-            <strong>• Data Integration:</strong>
-            Supports reliable exchange of business data between
-            SAP and external systems.
+            <strong>• Real-time Data Exchange:</strong>
+            Synchronize data across multiple systems instantaneously,
+            ensuring consistency and accuracy throughout the enterprise.
         </p>
 
         <p>
-            <strong>• Process Integration:</strong>
-            Enables business processes to communicate across
-            different applications.
+            <strong>• API Management:</strong>
+            Manage and monitor APIs for secure and efficient
+            communication between applications.
         </p>
 
         <p>
-            <strong>• Standardized Interfaces:</strong>
-            Provides consistent integration patterns and
-            interfaces.
+            <strong>• Workflow Automation:</strong>
+            Automate business processes by connecting different
+            systems and reducing manual interventions.
         </p>
 
+        <p>
+            <strong>• Error Handling & Monitoring:</strong>
+            Comprehensive logging and monitoring capabilities to track
+            integration activities and troubleshoot issues.
+        </p>
+
+        <p>
+            <strong>• Security & Compliance:</strong>
+            Enterprise-grade security features including encryption,
+            authentication, and role-based access control.
+        </p>
+
+        <h3>Common Integration Scenarios:</h3>
+
+        <p>
+            <strong>• ERP Integration:</strong>
+            Connect SAP ERP with CRM, HCM, and other business
+            applications for unified data management.
+        </p>
+
+        <p>
+            <strong>• Cloud Integration:</strong>
+            Integrate SAP systems with cloud-based applications and
+            services for enhanced scalability.
+        </p>
+
+        <p>
+            <strong>• Data Warehouse Integration:</strong>
+            Load data from SAP systems into data warehouses for
+            analytics and business intelligence.
+        </p>
+
+        <p>
+            <strong>• Legacy System Integration:</strong>
+            Bridge the gap between SAP systems and legacy applications
+            to modernize IT infrastructure.
+        </p>
+
+        <h3>Benefits:</h3>
+
+        <p>
+            ✓ Improved data consistency across the enterprise<br>
+            ✓ Reduced manual data entry and errors<br>
+            ✓ Enhanced operational efficiency<br>
+            ✓ Better decision-making through real-time insights<br>
+            ✓ Faster time-to-market for new processes<br>
+            ✓ Scalability and flexibility for business growth
+        </p>
+
+        <h3>Technical Architecture:</h3>
+
+        <p>
+            The integration layer typically consists of middleware,
+            connectors, adapters, and APIs that facilitate communication
+            between systems. It includes message queuing, data
+            transformation, and security mechanisms to ensure reliable
+            and secure data transfer.
+        </p>
 
         <h3>Implementation Best Practices:</h3>
 
         <p>
             <strong>• Plan Before Implementation:</strong>
-            Define clear objectives and mapping requirements
-            before starting integration projects.
+            Define clear objectives and mapping requirements before
+            starting integration projects.
         </p>
 
         <p>
             <strong>• Ensure Data Quality:</strong>
-            Implement validation rules and data cleansing
-            processes to maintain data integrity.
+            Implement validation rules and data cleansing processes to
+            maintain data integrity.
         </p>
 
         <p>
@@ -106,40 +152,32 @@ function loadSapContent() {
 
         <p>
             <strong>• Monitor Performance:</strong>
-            Continuously monitor integration processes and
-            optimize performance for better efficiency.
+            Continuously monitor integration processes and optimize
+            performance for better efficiency.
         </p>
 
         <p>
             <strong>• Document Everything:</strong>
-            Maintain detailed documentation for future
-            maintenance.
+            Maintain detailed documentation for future maintenance
+            and troubleshooting.
         </p>
-
 
         <h3>Future Trends:</h3>
 
         <p>
             The SAP Integration Module continues to evolve with
-            emerging technologies including AI-powered data
-            matching, blockchain for secure transactions,
-            IoT device integration, cloud-native architectures,
-            and microservices.
+            emerging technologies including AI-powered data matching,
+            blockchain for secure transactions, and IoT device
+            integration for real-time operational data. Cloud-native
+            architectures and microservices are becoming the standard
+            for modern integration platforms.
         </p>
     `;
 
 
-    const element =
-        document.getElementById(
-            "sapText"
-        );
-
-
-    if (element) {
-
-        element.innerHTML =
-            sapContent;
-    }
+    document.getElementById(
+        "sapText"
+    ).innerHTML = sapContent;
 }
 
 
@@ -149,77 +187,43 @@ function loadSapContent() {
 
 function showChatPasswordGate() {
 
-    const chatContainer =
-        document.getElementById(
-            "askmeContainer"
-        );
+    document
+        .getElementById("askmeContainer")
+        .classList.add("visible");
 
 
-    const passwordGate =
-        document.getElementById(
-            "chatPasswordGate"
-        );
+    document
+        .getElementById("chatPasswordGate")
+        .classList.add("visible");
 
 
-    const authenticatedChat =
-        document.getElementById(
-            "authenticatedChat"
-        );
+    document
+        .getElementById("authenticatedChat")
+        .classList.remove("visible");
 
 
-    const sapContainer =
-        document.getElementById(
-            "sapContainer"
-        );
+    document
+        .getElementById("sapContainer")
+        .style.display = "none";
 
 
-    const passwordError =
-        document.getElementById(
-            "passwordError"
-        );
+    document
+        .getElementById("passwordError")
+        .textContent = "";
 
 
-    const passwordInput =
-        document.getElementById(
-            "chatPassword"
-        );
+    document
+        .getElementById("chatPassword")
+        .value = "";
 
 
-    chatContainer.classList.add(
-        "visible"
-    );
+    setTimeout(() => {
 
+        document
+            .getElementById("chatPassword")
+            .focus();
 
-    passwordGate.classList.add(
-        "visible"
-    );
-
-
-    authenticatedChat.classList.remove(
-        "visible"
-    );
-
-
-    sapContainer.style.display =
-        "none";
-
-
-    passwordError.textContent =
-        "";
-
-
-    passwordInput.value =
-        "";
-
-
-    setTimeout(
-        () => {
-
-            passwordInput.focus();
-
-        },
-        150
-    );
+    }, 100);
 }
 
 
@@ -228,21 +232,16 @@ function showChatPasswordGate() {
 //
 // IMPORTANT:
 //
-// getTargetDate() is NOT present here.
-//
-// The backend calculates today's date - 10 days.
-// The backend creates an HttpOnly date_gate cookie.
-//
-// The frontend only sends the date supplied by the user.
+// The target date is calculated ONLY by Vercel.
+// There is deliberately NO getTargetDate()
+// function in this frontend.
 // ============================================================
 
 async function verifyDate() {
 
     const dateInput =
         document
-            .getElementById(
-                "dateInput"
-            )
+            .getElementById("dateInput")
             .value
             .trim();
 
@@ -259,13 +258,8 @@ async function verifyDate() {
         );
 
 
-    dateError.textContent =
-        "";
+    dateError.textContent = "";
 
-
-    // ========================================================
-    // DATE FORMAT
-    // ========================================================
 
     if (
         !/^\d{4}-\d{2}-\d{2}$/.test(
@@ -274,7 +268,7 @@ async function verifyDate() {
     ) {
 
         dateError.textContent =
-            "Please select a valid date.";
+            "Please enter the date in YYYY-MM-DD format.";
 
         return;
     }
@@ -282,47 +276,21 @@ async function verifyDate() {
 
     try {
 
-        button.disabled =
-            true;
-
+        button.disabled = true;
 
         button.textContent =
             "Checking...";
 
 
-        console.log(
-            "Verifying date:",
-            dateInput
-        );
-
-
         const response =
             await fetch(
-
                 VERIFY_DATE_API,
-
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
-                    /*
-                     * VERY IMPORTANT.
-                     *
-                     * The backend creates:
-                     *
-                     * date_gate=...
-                     *
-                     * as an HttpOnly cookie.
-                     *
-                     * The browser must be allowed
-                     * to store that cookie.
-                     */
-
-                    credentials:
-                        "include",
+                    credentials: "include",
 
                     headers: {
-
                         "Content-Type":
                             "application/json",
 
@@ -330,86 +298,29 @@ async function verifyDate() {
                             "application/json"
                     },
 
-                    body:
-                        JSON.stringify({
-
-                            date:
-                                dateInput
-                        })
+                    body: JSON.stringify({
+                        date: dateInput
+                    })
                 }
             );
 
 
-        let result = {};
+        const result =
+            await response.json();
 
-        try {
-
-            result =
-                await response.json();
-
-        } catch (jsonError) {
-
-            console.error(
-                "Unable to parse date response:",
-                jsonError
-            );
-
-        }
-
-
-        console.log(
-            "Date verification response:",
-            response.status,
-            result
-        );
-
-
-        // ====================================================
-        // SUCCESS
-        // ====================================================
 
         if (
             response.ok &&
-            result.success === true
+            result.success
         ) {
-
-            /*
-             * DO NOT look for result.dateToken.
-             *
-             * The backend stores the date verification
-             * in the HttpOnly date_gate cookie.
-             */
 
             showChatPasswordGate();
 
-            return;
-        }
-
-
-        // ====================================================
-        // DATE REJECTED
-        // ====================================================
-
-        if (
-            response.status ===
-            401
-        ) {
+        } else {
 
             dateError.textContent =
-                result.error ||
-                "The date is not valid.";
-
-            return;
+                "The date is not valid. Please try again.";
         }
-
-
-        // ====================================================
-        // SERVER ERROR
-        // ====================================================
-
-        dateError.textContent =
-            result.error ||
-            `Unable to verify the date. Server returned ${response.status}.`;
 
 
     } catch (error) {
@@ -421,13 +332,11 @@ async function verifyDate() {
 
 
         dateError.textContent =
-            "Unable to connect to the date verification server.";
+            "Unable to verify the date. Please try again.";
 
     } finally {
 
-        button.disabled =
-            false;
-
+        button.disabled = false;
 
         button.textContent =
             "Continue";
@@ -437,18 +346,9 @@ async function verifyDate() {
 
 // ============================================================
 // PASSWORD LOGIN
-//
-// IMPORTANT:
-//
-// There is NO dateToken here.
-//
-// The backend gets date_gate automatically from
-// the HttpOnly cookie created by /api/verify-date.
 // ============================================================
 
-async function loginToChat(
-    event
-) {
+async function loginToChat(event) {
 
     event.preventDefault();
 
@@ -476,21 +376,13 @@ async function loginToChat(
 
 
     if (!password) {
-
-        errorElement.textContent =
-            "Please enter the password.";
-
         return;
     }
 
 
-    errorElement.textContent =
-        "";
+    errorElement.textContent = "";
 
-
-    unlockButton.disabled =
-        true;
-
+    unlockButton.disabled = true;
 
     unlockButton.textContent =
         "Checking...";
@@ -500,23 +392,13 @@ async function loginToChat(
 
         const response =
             await fetch(
-
                 LOGIN_API,
-
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
-                    /*
-                     * Sends the date_gate cookie
-                     * to the backend.
-                     */
-
-                    credentials:
-                        "include",
+                    credentials: "include",
 
                     headers: {
-
                         "Content-Type":
                             "application/json",
 
@@ -524,129 +406,34 @@ async function loginToChat(
                             "application/json"
                     },
 
-                    /*
-                     * ONLY password is sent.
-                     *
-                     * date_gate is sent automatically
-                     * as a cookie.
-                     */
-
-                    body:
-                        JSON.stringify({
-
-                            password:
-                                password
-                        })
+                    body: JSON.stringify({
+                        password: password
+                    })
                 }
             );
 
 
-        let result = {};
+        const result =
+            await response.json();
 
-        try {
-
-            result =
-                await response.json();
-
-        } catch (jsonError) {
-
-            console.error(
-                "Unable to parse login response:",
-                jsonError
-            );
-
-        }
-
-
-        console.log(
-            "Login response:",
-            response.status,
-            result
-        );
-
-
-        // ====================================================
-        // DATE VERIFICATION REQUIRED
-        // ====================================================
-
-        if (
-            response.status ===
-            403
-        ) {
-
-            errorElement.textContent =
-                result.error ||
-                "Date verification is required. Please verify the date again.";
-
-            return;
-        }
-
-
-        // ====================================================
-        // INVALID PASSWORD
-        // ====================================================
-
-        if (
-            response.status ===
-            401
-        ) {
-
-            errorElement.textContent =
-                "Incorrect password. Please try again.";
-
-            passwordInput.value =
-                "";
-
-            passwordInput.focus();
-
-            return;
-        }
-
-
-        // ====================================================
-        // OTHER ERROR
-        // ====================================================
 
         if (
             !response.ok ||
-            result.success !== true
+            !result.success
         ) {
 
             throw new Error(
-
                 result.error ||
-                "Unable to unlock chat."
+                "Invalid password."
             );
         }
 
-
-        // ====================================================
-        // CSRF TOKEN
-        // ====================================================
 
         csrfToken =
-            result.csrfToken ||
-            "";
+            result.csrfToken || "";
 
 
-        if (!csrfToken) {
-
-            throw new Error(
-                "CSRF token was not returned by the server."
-            );
-        }
-
-
-        // ====================================================
-        // LOGIN SUCCESS
-        // ====================================================
-
-        chatAuthenticated =
-            true;
-
-
-        passwordInput.value =
-            "";
+        chatAuthenticated = true;
 
 
         document
@@ -671,9 +458,9 @@ async function loginToChat(
 
             initializeChat();
 
-            chatInitialized =
-                true;
+            chatInitialized = true;
         }
+
 
     } catch (error) {
 
@@ -684,14 +471,17 @@ async function loginToChat(
 
 
         errorElement.textContent =
-            error.message ||
-            "Unable to unlock chat.";
+            "Incorrect password. Please try again.";
+
+
+        passwordInput.value = "";
+
+        passwordInput.focus();
+
 
     } finally {
 
-        unlockButton.disabled =
-            false;
-
+        unlockButton.disabled = false;
 
         unlockButton.textContent =
             "Unlock Chat";
@@ -700,13 +490,12 @@ async function loginToChat(
 
 
 // ============================================================
-// LOAD CHAT HISTORY
+// LOAD MESSAGES
 // ============================================================
 
 async function loadMessages() {
 
     if (!chatAuthenticated) {
-
         return;
     }
 
@@ -715,18 +504,13 @@ async function loadMessages() {
 
         const response =
             await fetch(
-
                 `${MESSAGES_API}?limit=50`,
-
                 {
-                    method:
-                        "GET",
+                    method: "GET",
 
-                    credentials:
-                        "include",
+                    credentials: "include",
 
                     headers: {
-
                         "Accept":
                             "application/json",
 
@@ -737,15 +521,9 @@ async function loadMessages() {
             );
 
 
-        // ====================================================
-        // SESSION EXPIRED
-        // ====================================================
-
         if (
-            response.status ===
-            401 ||
-            response.status ===
-            403
+            response.status === 401 ||
+            response.status === 403
         ) {
 
             handleAuthenticationExpired();
@@ -766,14 +544,11 @@ async function loadMessages() {
             await response.json();
 
 
-        if (
-            !result.success
-        ) {
+        if (!result.success) {
 
             throw new Error(
-
                 result.error ||
-                "Failed to load messages."
+                "Failed to load messages"
             );
         }
 
@@ -781,6 +556,7 @@ async function loadMessages() {
         renderMessages(
             result.messages
         );
+
 
     } catch (error) {
 
@@ -801,9 +577,7 @@ async function loadMessages() {
 // RENDER MESSAGES
 // ============================================================
 
-function renderMessages(
-    messages
-) {
+function renderMessages(messages) {
 
     const chat =
         document.getElementById(
@@ -811,27 +585,19 @@ function renderMessages(
         );
 
 
-    if (
-        !Array.isArray(
-            messages
-        )
-    ) {
-
+    if (!Array.isArray(messages)) {
         return;
     }
 
 
     const signature =
-        JSON.stringify(
-            messages
-        );
+        JSON.stringify(messages);
 
 
     if (
         signature ===
         lastMessageSignature
     ) {
-
         return;
     }
 
@@ -840,70 +606,68 @@ function renderMessages(
         signature;
 
 
-    chat.innerHTML =
-        "";
+    chat.innerHTML = "";
 
 
-    messages.forEach(
-        message => {
+    messages.forEach(message => {
 
-            const messageElement =
-                document.createElement(
-                    "div"
-                );
-
-
-            messageElement.className =
-                "message";
-
-
-            const userElement =
-                document.createElement(
-                    "div"
-                );
-
-
-            userElement.className =
-                "message-user";
-
-
-            userElement.textContent =
-                `${message.username}:`;
-
-
-            const textElement =
-                document.createElement(
-                    "div"
-                );
-
-
-            textElement.className =
-                "message-text";
-
-
-            /*
-             * textContent prevents HTML injection.
-             */
-
-            textElement.textContent =
-                message.text;
-
-
-            messageElement.appendChild(
-                userElement
+        const messageElement =
+            document.createElement(
+                "div"
             );
 
 
-            messageElement.appendChild(
-                textElement
+        messageElement.className =
+            "message";
+
+
+        const userElement =
+            document.createElement(
+                "div"
             );
 
 
-            chat.appendChild(
-                messageElement
+        userElement.className =
+            "message-user";
+
+
+        userElement.textContent =
+            `${message.username}:`;
+
+
+        const textElement =
+            document.createElement(
+                "div"
             );
-        }
-    );
+
+
+        textElement.className =
+            "message-text";
+
+
+        /*
+         * textContent prevents HTML injection.
+         */
+
+        textElement.textContent =
+            message.text;
+
+
+        messageElement.appendChild(
+            userElement
+        );
+
+
+        messageElement.appendChild(
+            textElement
+        );
+
+
+        chat.appendChild(
+            messageElement
+        );
+
+    });
 
 
     chat.scrollTop =
@@ -919,15 +683,12 @@ function startMessagePolling() {
 
     stopMessagePolling();
 
-
     loadMessages();
 
 
     messagePolling =
         setInterval(
-
             loadMessages,
-
             2000
         );
 }
@@ -935,17 +696,13 @@ function startMessagePolling() {
 
 function stopMessagePolling() {
 
-    if (
-        messagePolling
-    ) {
+    if (messagePolling) {
 
         clearInterval(
             messagePolling
         );
 
-
-        messagePolling =
-            null;
+        messagePolling = null;
     }
 }
 
@@ -956,18 +713,12 @@ function stopMessagePolling() {
 
 function initializeChat() {
 
-    const chat =
-        document.getElementById(
-            "askme"
-        );
+    document
+        .getElementById("askme")
+        .innerHTML = "";
 
 
-    chat.innerHTML =
-        "";
-
-
-    lastMessageSignature =
-        "";
+    lastMessageSignature = "";
 
 
     startMessagePolling();
@@ -978,17 +729,12 @@ function initializeChat() {
 // SEND MESSAGE
 // ============================================================
 
-async function sendMessage(
-    event
-) {
+async function sendMessage(event) {
 
     event.preventDefault();
 
 
-    if (
-        !chatAuthenticated
-    ) {
-
+    if (!chatAuthenticated) {
         return;
     }
 
@@ -1010,31 +756,24 @@ async function sendMessage(
 
 
     if (!text) {
-
         return;
     }
 
 
     try {
 
-        button.disabled =
-            true;
+        button.disabled = true;
 
 
         const response =
             await fetch(
-
                 MESSAGES_API,
-
                 {
-                    method:
-                        "POST",
+                    method: "POST",
 
-                    credentials:
-                        "include",
+                    credentials: "include",
 
                     headers: {
-
                         "Content-Type":
                             "application/json",
 
@@ -1045,25 +784,16 @@ async function sendMessage(
                             csrfToken
                     },
 
-                    body:
-                        JSON.stringify({
-
-                            text:
-                                text
-                        })
+                    body: JSON.stringify({
+                        text: text
+                    })
                 }
             );
 
 
-        // ====================================================
-        // SESSION EXPIRED
-        // ====================================================
-
         if (
-            response.status ===
-            401 ||
-            response.status ===
-            403
+            response.status === 401 ||
+            response.status === 403
         ) {
 
             handleAuthenticationExpired();
@@ -1084,26 +814,22 @@ async function sendMessage(
             await response.json();
 
 
-        if (
-            !result.success
-        ) {
+        if (!result.success) {
 
             throw new Error(
-
                 result.error ||
-                "Failed to send message."
+                "Failed to send message"
             );
         }
 
 
-        input.value =
-            "";
-
+        input.value = "";
 
         input.focus();
 
 
         await loadMessages();
+
 
     } catch (error) {
 
@@ -1117,16 +843,16 @@ async function sendMessage(
             "Unable to send your message. Please try again."
         );
 
+
     } finally {
 
-        button.disabled =
-            false;
+        button.disabled = false;
     }
 }
 
 
 // ============================================================
-// CLOSE / LOGOUT
+// LOGOUT
 // ============================================================
 
 async function closeChat() {
@@ -1137,18 +863,13 @@ async function closeChat() {
     try {
 
         await fetch(
-
             LOGOUT_API,
-
             {
-                method:
-                    "POST",
+                method: "POST",
 
-                credentials:
-                    "include",
+                credentials: "include",
 
                 headers: {
-
                     "Accept":
                         "application/json"
                 }
@@ -1164,166 +885,70 @@ async function closeChat() {
 
     } finally {
 
-        resetChatState();
-    }
-}
+        chatAuthenticated = false;
+
+        csrfToken = "";
 
 
-// ============================================================
-// RESET CHAT STATE
-// ============================================================
-
-function resetChatState() {
-
-    chatAuthenticated =
-        false;
-
-
-    csrfToken =
-        "";
-
-
-    chatInitialized =
-        false;
-
-
-    lastMessageSignature =
-        "";
-
-
-    stopMessagePolling();
-
-
-    const dateInput =
         document.getElementById(
             "dateInput"
-        );
+        ).value = "";
 
 
-    const dateError =
         document.getElementById(
             "dateError"
-        );
+        ).textContent = "";
 
 
-    const passwordInput =
         document.getElementById(
             "chatPassword"
-        );
+        ).value = "";
 
 
-    const passwordError =
         document.getElementById(
             "passwordError"
-        );
+        ).textContent = "";
 
 
-    const passwordGate =
         document.getElementById(
             "chatPasswordGate"
+        ).classList.remove(
+            "visible"
         );
 
 
-    const authenticatedChat =
         document.getElementById(
             "authenticatedChat"
+        ).classList.remove(
+            "visible"
         );
 
 
-    const chatContainer =
         document.getElementById(
             "askmeContainer"
+        ).classList.remove(
+            "visible"
         );
 
 
-    const sapContainer =
         document.getElementById(
             "sapContainer"
-        );
+        ).style.display = "block";
 
 
-    const chat =
         document.getElementById(
             "askme"
-        );
+        ).innerHTML = "";
 
 
-    const messageInput =
         document.getElementById(
             "msg"
-        );
+        ).value = "";
 
 
-    if (dateInput) {
+        chatInitialized = false;
 
-        dateInput.value =
-            "";
-    }
-
-
-    if (dateError) {
-
-        dateError.textContent =
-            "";
-    }
-
-
-    if (passwordInput) {
-
-        passwordInput.value =
-            "";
-    }
-
-
-    if (passwordError) {
-
-        passwordError.textContent =
-            "";
-    }
-
-
-    if (passwordGate) {
-
-        passwordGate.classList.remove(
-            "visible"
-        );
-    }
-
-
-    if (authenticatedChat) {
-
-        authenticatedChat.classList.remove(
-            "visible"
-        );
-    }
-
-
-    if (chatContainer) {
-
-        chatContainer.classList.remove(
-            "visible"
-        );
-    }
-
-
-    if (sapContainer) {
-
-        sapContainer.style.display =
-            "block";
-    }
-
-
-    if (chat) {
-
-        chat.innerHTML =
-            "";
-    }
-
-
-    if (messageInput) {
-
-        messageInput.value =
-            "";
+        lastMessageSignature = "";
     }
 }
 
@@ -1334,7 +959,48 @@ function resetChatState() {
 
 function handleAuthenticationExpired() {
 
-    resetChatState();
+    chatAuthenticated = false;
+
+    csrfToken = "";
+
+
+    stopMessagePolling();
+
+
+    document.getElementById(
+        "askmeContainer"
+    ).classList.remove(
+        "visible"
+    );
+
+
+    document.getElementById(
+        "authenticatedChat"
+    ).classList.remove(
+        "visible"
+    );
+
+
+    document.getElementById(
+        "chatPasswordGate"
+    ).classList.remove(
+        "visible"
+    );
+
+
+    document.getElementById(
+        "sapContainer"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "dateInput"
+    ).value = "";
+
+
+    chatInitialized = false;
+
+    lastMessageSignature = "";
 
 
     alert(
@@ -1347,9 +1013,7 @@ function handleAuthenticationExpired() {
 // ERROR
 // ============================================================
 
-function showChatError(
-    message
-) {
+function showChatError(message) {
 
     const chat =
         document.getElementById(
@@ -1357,8 +1021,7 @@ function showChatError(
         );
 
 
-    chat.innerHTML =
-        "";
+    chat.innerHTML = "";
 
 
     const errorElement =
@@ -1382,58 +1045,32 @@ function showChatError(
 
 
 // ============================================================
-// EVENTS
+// PAGE EVENTS
 // ============================================================
 
 document.addEventListener(
-
     "DOMContentLoaded",
-
     () => {
-
-        console.log(
-            "Secure chat frontend loaded."
-        );
-
 
         loadSapContent();
 
 
-        // ====================================================
-        // DATE BUTTON
-        // ====================================================
-
-        const verifyButton =
-            document.getElementById(
+        document
+            .getElementById(
                 "verifyDateButton"
-            );
-
-
-        if (verifyButton) {
-
-            verifyButton.addEventListener(
+            )
+            .addEventListener(
                 "click",
                 verifyDate
             );
-        }
 
 
-        // ====================================================
-        // DATE ENTER KEY
-        // ====================================================
-
-        const dateInput =
-            document.getElementById(
+        document
+            .getElementById(
                 "dateInput"
-            );
-
-
-        if (dateInput) {
-
-            dateInput.addEventListener(
-
+            )
+            .addEventListener(
                 "keydown",
-
                 event => {
 
                     if (
@@ -1447,83 +1084,46 @@ document.addEventListener(
                     }
                 }
             );
-        }
 
 
-        // ====================================================
-        // PASSWORD FORM
-        // ====================================================
-
-        const passwordForm =
-            document.getElementById(
+        document
+            .getElementById(
                 "passwordForm"
-            );
-
-
-        if (passwordForm) {
-
-            passwordForm.addEventListener(
+            )
+            .addEventListener(
                 "submit",
                 loginToChat
             );
-        }
 
 
-        // ====================================================
-        // CANCEL
-        // ====================================================
-
-        const cancelButton =
-            document.getElementById(
+        document
+            .getElementById(
                 "cancelPasswordBtn"
-            );
-
-
-        if (cancelButton) {
-
-            cancelButton.addEventListener(
+            )
+            .addEventListener(
                 "click",
                 closeChat
             );
-        }
 
 
-        // ====================================================
-        // CHAT FORM
-        // ====================================================
-
-        const chatForm =
-            document.getElementById(
+        document
+            .getElementById(
                 "form"
-            );
-
-
-        if (chatForm) {
-
-            chatForm.addEventListener(
+            )
+            .addEventListener(
                 "submit",
                 sendMessage
             );
-        }
 
 
-        // ====================================================
-        // CLOSE CHAT
-        // ====================================================
-
-        const closeButton =
-            document.getElementById(
+        document
+            .getElementById(
                 "closeaskmeBtn"
-            );
-
-
-        if (closeButton) {
-
-            closeButton.addEventListener(
+            )
+            .addEventListener(
                 "click",
                 closeChat
             );
-        }
 
     }
 );
