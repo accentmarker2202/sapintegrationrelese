@@ -1,8 +1,13 @@
+/* =========================================================
+   RESET
+========================================================= */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 
 html,
 body {
@@ -10,436 +15,663 @@ body {
     min-height: 100%;
 }
 
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family:
+        'Segoe UI',
+        Tahoma,
+        Geneva,
+        Verdana,
+        sans-serif;
+
     background: white;
 }
 
 
-/* ================================
-   MENU BAR
-================================ */
+/* =========================================================
+   MENU
+========================================================= */
 
 .menu-bar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    background:
+        linear-gradient(
+            135deg,
+            #667eea 0%,
+            #764ba2 100%
+        );
+
     padding: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.15);
+
     position: sticky;
+
     top: 0;
+
     z-index: 998;
 }
 
+
 .menu-bar ul {
+
     list-style: none;
+
     display: flex;
+
     margin: 0;
+
     padding: 0;
+
     flex-wrap: wrap;
 }
+
 
 .menu-bar li {
     position: relative;
 }
 
+
 .menu-bar a {
+
     display: block;
+
     color: white;
+
     text-decoration: none;
+
     padding: 15px 20px;
-    transition: background 0.3s, color 0.3s;
+
+    transition:
+        background 0.3s,
+        color 0.3s;
+
     font-weight: 500;
 }
 
+
 .menu-bar a:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+
+    background:
+        rgba(255, 255, 255, 0.2);
+
+    color: white;
 }
+
 
 .menu-bar .active {
-    background: rgba(255, 255, 255, 0.3);
-    border-bottom: 3px solid #fff;
+
+    background:
+        rgba(255, 255, 255, 0.3);
+
+    border-bottom:
+        3px solid white;
 }
 
 
-/* ================================
+/* =========================================================
    SAP CONTENT
-================================ */
+========================================================= */
 
 #sapContainer {
-    flex: 1;
-    overflow-y: auto;
+
     padding: 30px;
+
     background: white;
+
     display: block;
+
     min-height: 100vh;
+
+    overflow-y: auto;
 }
 
-#sapContainer h2 {
-    color: #333;
-    margin-bottom: 20px;
-    border-bottom: 3px solid #667eea;
-    padding-bottom: 10px;
-}
-
-#sapContainer h3 {
-    color: #444;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-#sapContainer p {
-    line-height: 1.8;
-    color: #555;
-    margin-bottom: 15px;
-    text-align: justify;
-}
 
 #sapContent {
+
     max-width: 900px;
+
     margin: 0 auto;
 }
 
+
+#sapContainer h2 {
+
+    color: #333;
+
+    margin-bottom: 20px;
+
+    border-bottom:
+        3px solid #667eea;
+
+    padding-bottom: 10px;
+}
+
+
+#sapContainer h3 {
+
+    color: #444;
+
+    margin-top: 20px;
+
+    margin-bottom: 10px;
+}
+
+
+#sapContainer p {
+
+    line-height: 1.8;
+
+    color: #555;
+
+    margin-bottom: 15px;
+
+    text-align: justify;
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
 .sap-logo-container {
+
     text-align: center;
+
     margin-bottom: 30px;
 }
+
 
 .sap-logo {
+
     height: 80px;
+
     width: auto;
+
     max-width: 300px;
+
     margin-bottom: 20px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+
+    filter:
+        drop-shadow(
+            0 2px 4px
+            rgba(0, 0, 0, 0.1)
+        );
 }
 
 
-/* ================================
-   DATE SELECTOR
-================================ */
+/* =========================================================
+   DATE
+========================================================= */
 
 .date-selector-container {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    background:
+        linear-gradient(
+            135deg,
+            #667eea 0%,
+            #764ba2 100%
+        );
+
     padding: 20px;
+
     border-radius: 8px;
+
     margin-bottom: 30px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    box-shadow:
+        0 4px 6px
+        rgba(0, 0, 0, 0.1);
 }
+
 
 .date-selector-container label {
+
     color: white;
+
     font-weight: bold;
+
     display: block;
+
     margin-bottom: 10px;
+
     font-size: 16px;
 }
 
-.date-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
 
 .date-selector-container input {
+
     width: 100%;
+
     max-width: 300px;
+
     padding: 12px;
-    border: 2px solid #ddd;
+
+    border:
+        2px solid #ddd;
+
     border-radius: 5px;
+
     font-size: 16px;
-    transition: border-color 0.3s;
+
+    background: white;
 }
+
 
 .date-selector-container input:focus {
+
     outline: none;
-    border-color: #667eea;
+
+    border-color:
+        #667eea;
 }
+
 
 #verifyDateButton {
-    padding: 12px 20px;
+
+    margin-top: 12px;
+
+    padding: 12px 24px;
+
     border: none;
+
     border-radius: 5px;
+
     background: white;
+
     color: #667eea;
-    font-size: 15px;
+
     font-weight: bold;
+
     cursor: pointer;
-    white-space: nowrap;
+
+    font-size: 15px;
 }
 
-#verifyDateButton:hover {
-    background: #f1f1f1;
-}
 
 #verifyDateButton:disabled {
-    opacity: 0.65;
+
+    opacity: 0.6;
+
     cursor: not-allowed;
 }
 
-#dateError {
-    min-height: 20px;
-    margin-top: 10px;
-    color: white;
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.form-error {
+
+    color: #ffd7d7;
+
     font-size: 14px;
-    font-weight: 500;
+
+    margin-top: 8px;
+
+    min-height: 20px;
 }
 
 
-/* ================================
-   CHAT FRAME
-================================ */
+.error-message {
+
+    color: #b00020;
+
+    background: #ffe5e5;
+
+    padding: 12px;
+
+    border-radius: 5px;
+
+    margin-bottom: 15px;
+}
+
+
+/* =========================================================
+   CHAT CONTAINER
+========================================================= */
 
 #askmeContainer {
+
     display: none;
-    flex-direction: column;
-
-    height: 100vh;
-    height: 100dvh;
-    min-height: 100dvh;
-
-    background: #f5f5f5;
 
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
 
-    width: 100%;
+    inset: 0;
 
     z-index: 999;
 
-    overflow: hidden;
+    background: white;
+
+    flex-direction: column;
 }
+
 
 #askmeContainer.visible {
+
     display: flex;
 }
 
 
-/* ================================
+/* =========================================================
    CHAT HEADER
-================================ */
+========================================================= */
 
 #askmeHeader {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
 
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex:
+        0 0 auto;
 
     display: flex;
-    justify-content: space-between;
+
     align-items: center;
 
-    flex-shrink: 0;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 14px 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #667eea 0%,
+            #764ba2 100%
+        );
+
+    color: white;
+
+    font-size: 20px;
+
+    font-weight: bold;
 }
 
+
 .close-btn {
-    background: rgba(255, 255, 255, 0.2);
+
+    background:
+        rgba(255, 255, 255, 0.2);
+
     color: white;
-    border: 1px solid white;
+
+    border:
+        1px solid white;
+
     padding: 8px 15px;
+
     border-radius: 5px;
+
     cursor: pointer;
-    transition: background 0.3s;
+
     font-size: 14px;
 }
 
+
 .close-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+
+    background:
+        rgba(255, 255, 255, 0.3);
 }
 
 
-/* ================================
-   PASSWORD GATE INSIDE CHAT
-================================ */
+/* =========================================================
+   PASSWORD GATE
+========================================================= */
 
-#chatPasswordGate {
+.chat-gate {
+
     display: none;
 
-    flex: 1 1 auto;
-    min-height: 0;
+    flex: 1;
 
     align-items: center;
+
     justify-content: center;
 
     padding: 20px;
 
     overflow-y: auto;
 
-    background: #f4f4f4;
+    background:
+        #f4f4f4;
 }
 
-#chatPasswordGate.visible {
+
+.chat-gate.visible {
+
     display: flex;
 }
 
-.chat-password-card {
+
+.password-card {
+
     width: 100%;
+
     max-width: 420px;
 
     background: white;
 
-    border-radius: 15px;
+    padding: 30px;
 
-    padding: 35px;
+    border-radius: 12px;
+
+    box-shadow:
+        0 8px 30px
+        rgba(0, 0, 0, 0.15);
 
     text-align: center;
-
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-
-    border: 1px solid #e4e4e4;
 }
 
-.password-icon {
-    font-size: 48px;
-    margin-bottom: 8px;
-}
 
-.chat-password-card h2 {
-    color: #333;
+.lock-icon {
+
+    font-size: 50px;
+
     margin-bottom: 10px;
 }
 
-.chat-password-card p {
+
+.password-card h2 {
+
+    color: #333;
+
+    margin-bottom: 10px;
+}
+
+
+.password-card p {
+
     color: #666;
-    font-size: 14px;
-    line-height: 1.6;
+
+    line-height: 1.5;
+
     margin-bottom: 20px;
 }
 
-#chatPassword {
+
+.password-card label {
+
+    display: block;
+
+    text-align: left;
+
+    color: #444;
+
+    font-weight: bold;
+
+    margin-bottom: 7px;
+}
+
+
+.password-card input {
+
     width: 100%;
+
     padding: 13px;
 
-    border: 2px solid #ddd;
-    border-radius: 7px;
+    border:
+        2px solid #ddd;
+
+    border-radius: 6px;
 
     font-size: 16px;
+
+    margin-bottom: 12px;
+}
+
+
+.password-card input:focus {
+
     outline: none;
+
+    border-color:
+        #667eea;
 }
 
-#chatPassword:focus {
-    border-color: #667eea;
-}
 
-#passwordForm button {
+#unlockButton {
+
     width: 100%;
-    margin-top: 12px;
 
     padding: 13px;
 
     border: none;
-    border-radius: 7px;
 
-    background: linear-gradient(
-        135deg,
-        #667eea 0%,
-        #764ba2 100%
-    );
+    border-radius: 6px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #667eea,
+            #764ba2
+        );
 
     color: white;
 
-    font-size: 16px;
     font-weight: bold;
+
+    font-size: 16px;
 
     cursor: pointer;
 }
 
-#passwordForm button:hover {
-    opacity: 0.9;
-}
 
-#passwordForm button:disabled {
+#unlockButton:disabled {
+
     opacity: 0.6;
+
     cursor: not-allowed;
 }
 
-#passwordError {
-    min-height: 20px;
-    margin-top: 12px;
 
-    color: #d93025;
-    font-size: 14px;
-}
+.secondary-button {
 
-.cancel-password {
-    margin-top: 15px;
+    width: 100%;
 
-    border: none;
-    background: transparent;
+    padding: 11px;
 
-    color: #666;
+    margin-top: 10px;
+
+    border:
+        1px solid #bbb;
+
+    border-radius: 6px;
+
+    background: white;
+
+    color: #555;
 
     cursor: pointer;
 }
 
-.cancel-password:hover {
-    color: #333;
+
+#passwordError {
+
+    color: #b00020;
+
+    min-height: 22px;
+
+    margin-top: 10px;
 }
 
 
-/* ================================
+/* =========================================================
    AUTHENTICATED CHAT
-================================ */
+========================================================= */
 
 .authenticated-chat {
+
     display: none;
 
-    flex: 1 1 auto;
+    flex:
+        1 1 auto;
+
     min-height: 0;
 
     flex-direction: column;
-
-    overflow: hidden;
 }
 
+
 .authenticated-chat.visible {
+
     display: flex;
 }
 
 
-/* ================================
+/* =========================================================
    CHAT MESSAGES
-================================ */
+========================================================= */
 
 #askme {
-    flex: 1 1 auto;
+
+    flex:
+        1 1 auto;
 
     min-height: 0;
 
     overflow-y: auto;
+
     overflow-x: hidden;
 
     padding: 20px;
 
-    background: #f4f4f4;
+    background:
+        #f4f4f4;
 
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling:
+        touch;
 }
 
+
 .message {
+
     background: white;
 
     padding: 12px;
+
     margin-bottom: 10px;
 
     border-radius: 8px;
 
     box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.1);
+        0 2px 5px
+        rgba(0, 0, 0, 0.1);
 
-    border-left: 4px solid #667eea;
+    border-left:
+        4px solid #667eea;
 
     word-wrap: break-word;
+
     overflow-wrap: break-word;
 }
 
+
 .message-user {
+
     font-weight: bold;
+
     color: #667eea;
 
     margin-bottom: 5px;
@@ -447,31 +679,38 @@ body {
     font-size: 14px;
 }
 
+
 .message-text {
+
     color: #333;
 
     word-wrap: break-word;
+
     overflow-wrap: break-word;
 
     white-space: pre-wrap;
 }
 
 
-/* ================================
-   CHAT INPUT
-================================ */
+/* =========================================================
+   CHAT FORM
+========================================================= */
 
 #form {
+
     display: flex;
 
-    flex: 0 0 auto;
+    flex:
+        0 0 auto;
+
     flex-shrink: 0;
 
     padding: 15px;
 
     background: white;
 
-    border-top: 1px solid #ddd;
+    border-top:
+        1px solid #ddd;
 
     gap: 10px;
 
@@ -482,35 +721,47 @@ body {
     z-index: 1000;
 }
 
+
 #msg {
-    flex: 1 1 auto;
+
+    flex:
+        1 1 auto;
 
     min-width: 0;
+
     width: 100%;
 
     padding: 12px;
 
-    border: 2px solid #ddd;
+    border:
+        2px solid #ddd;
 
     border-radius: 5px;
 
     font-size: 16px;
 
-    transition: border-color 0.3s;
-
     background: white;
+
     color: #333;
 }
 
+
 #msg:focus {
+
     outline: none;
-    border-color: #667eea;
+
+    border-color:
+        #667eea;
 }
 
-#form button {
-    padding: 12px 25px;
 
-    background: #667eea;
+#form button {
+
+    padding:
+        12px 25px;
+
+    background:
+        #667eea;
 
     color: white;
 
@@ -522,147 +773,214 @@ body {
 
     font-weight: bold;
 
-    transition: background 0.3s;
-
     flex-shrink: 0;
 
     white-space: nowrap;
 }
 
+
 #form button:hover {
-    background: #764ba2;
+
+    background:
+        #764ba2;
 }
 
+
 #form button:disabled {
+
     opacity: 0.6;
+
     cursor: not-allowed;
 }
 
 
-/* ================================
-   LOADING / ERROR
-================================ */
-
-.loading {
-    text-align: center;
-    color: #999;
-    font-style: italic;
-    padding: 20px;
-}
-
-.error-message {
-    color: #b00020;
-    background: #ffe5e5;
-    padding: 12px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-
-
-/* ================================
+/* =========================================================
    MOBILE
-================================ */
+========================================================= */
 
 @media (max-width: 600px) {
 
     .menu-bar a {
-        padding: 12px 10px;
-        font-size: 14px;
+
+        padding:
+            12px 10px;
+
+        font-size:
+            14px;
     }
+
 
     #sapContainer {
-        padding: 15px;
+
+        padding:
+            15px;
     }
 
-    .date-row {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .date-selector-container input {
-        max-width: none;
-    }
-
-    #verifyDateButton {
-        width: 100%;
-    }
 
     #askmeHeader {
-        font-size: 18px;
-        padding: 12px 10px;
-        flex-shrink: 0;
+
+        font-size:
+            18px;
+
+        padding:
+            12px 10px;
     }
+
 
     .close-btn {
-        padding: 7px 10px;
-        font-size: 13px;
+
+        padding:
+            7px 10px;
+
+        font-size:
+            13px;
     }
 
-    .chat-password-card {
-        padding: 25px 20px;
-    }
 
     #askme {
-        padding: 10px;
-        min-height: 0;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+
+        padding:
+            10px;
+
+        min-height:
+            0;
+
+        overflow-y:
+            auto;
+
+        -webkit-overflow-scrolling:
+            touch;
     }
+
 
     #form {
-        padding: 8px;
-        gap: 6px;
-        width: 100%;
-        flex-shrink: 0;
+
+        padding:
+            8px;
+
+        gap:
+            6px;
+
+        width:
+            100%;
+
+        flex-shrink:
+            0;
+
+        padding-bottom:
+            max(
+                8px,
+                env(safe-area-inset-bottom)
+            );
     }
+
 
     #msg {
-        min-width: 0;
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
+
+        min-width:
+            0;
+
+        width:
+            100%;
+
+        padding:
+            10px;
+
+        font-size:
+            16px;
     }
 
+
     #form button {
-        padding: 10px 14px;
-        flex-shrink: 0;
-        font-size: 14px;
+
+        padding:
+            10px 14px;
+
+        flex-shrink:
+            0;
+
+        font-size:
+            14px;
+    }
+
+
+    .password-card {
+
+        padding:
+            22px;
+
+        max-width:
+            94%;
     }
 }
 
 
-/* ================================
+/* =========================================================
    VERY SMALL PHONES
-================================ */
+========================================================= */
 
 @media (max-width: 380px) {
 
     #askmeHeader {
-        font-size: 16px;
-        padding: 10px;
+
+        font-size:
+            16px;
+
+        padding:
+            10px;
     }
+
 
     .close-btn {
-        padding: 6px 8px;
-        font-size: 12px;
+
+        padding:
+            6px 8px;
+
+        font-size:
+            12px;
     }
+
 
     #askme {
-        padding: 8px;
+
+        padding:
+            8px;
     }
+
 
     #form {
-        padding: 6px;
-        gap: 5px;
+
+        padding:
+            6px;
+
+        gap:
+            5px;
     }
+
 
     #msg {
-        padding: 9px;
-        font-size: 16px;
+
+        padding:
+            9px;
+
+        font-size:
+            16px;
     }
 
+
     #form button {
-        padding: 9px 11px;
-        font-size: 13px;
+
+        padding:
+            9px 11px;
+
+        font-size:
+            13px;
+    }
+
+
+    .password-card {
+
+        padding:
+            18px;
     }
 }
