@@ -553,14 +553,41 @@ async function loginToChat(event) {
 // LOAD MESSAGES
 // ============================================================
 
+// ============================================================
+// LOAD MESSAGES
+// ============================================================
+
 async function loadMessages() {
 
-    if (!chatAuthenticated || !sessionToken) {
+    // ========================================================
+    // AUTHENTICATION CHECK
+    // ========================================================
+
+    if (
+        !chatAuthenticated ||
+        !sessionToken
+    ) {
+
+        console.error(
+            "Cannot load messages: user is not authenticated."
+        );
+
         return;
     }
 
 
     try {
+
+        // ====================================================
+        // REQUEST CHAT HISTORY
+        //
+        // New authentication system:
+        // Authorization: Bearer <sessionToken>
+        //
+        // NO COOKIES
+        // NO credentials: include
+        // NO CSRF TOKEN
+        // ====================================================
 
         const response =
             await fetch(
@@ -569,6 +596,7 @@ async function loadMessages() {
                     method: "GET",
 
                     headers: {
+
                         "Accept":
                             "application/json",
 
@@ -579,10 +607,46 @@ async function loadMessages() {
             );
 
 
+        // ====================================================
+        // READ RESPONSE
+        // ====================================================
+
+        let result = null;
+
+
+        try {
+
+            result =
+                await response.json();
+
+        } catch (jsonError) {
+
+            console.error(
+                "Unable to read server response:",
+                jsonError
+            );
+        }
+
+
+        // ====================================================
+        // AUTHENTICATION EXPIRED
+        // ====================================================
+
         if (
             response.status === 401 ||
             response.status === 403
         ) {
+
+            console.error(
+                "Authentication rejected while loading messages."
+            );
+
+
+            console.error(
+                "Server response:",
+                result
+            );
+
 
             handleAuthenticationExpired();
 
@@ -590,24 +654,85 @@ async function loadMessages() {
         }
 
 
-        const result =
-            await response.json();
+        // ====================================================
+        // SERVER ERROR
+        // ====================================================
 
+        if (!response.ok) {
 
-        if (
-            !response.ok ||
-            !result.success
-        ) {
+            console.error(
+                "Messages API returned:",
+                response.status,
+                result
+            );
+
 
             throw new Error(
-                result.error ||
-                "Failed to load messages."
+
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : `Server returned ${response.status}`
             );
         }
 
 
+        // ====================================================
+        // APPLICATION ERROR
+        // ====================================================
+
+        if (
+            !result ||
+            !result.success
+        ) {
+
+            throw new Error(
+
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : "Failed to load messages."
+            );
+        }
+
+
+        // ====================================================
+        // CHECK MESSAGE ARRAY
+        // ====================================================
+
+        if (
+            !Array.isArray(
+                result.messages
+            )
+        ) {
+
+            console.error(
+                "Invalid messages response:",
+                result
+            );
+
+            throw new Error(
+                "Invalid messages received from server."
+            );
+        }
+
+
+        // ====================================================
+        // RENDER MESSAGES
+        // ====================================================
+
         renderMessages(
             result.messages
+        );
+
+
+        console.log(
+            "Messages loaded successfully:",
+            result.messages.length
         );
 
 
