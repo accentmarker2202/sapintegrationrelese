@@ -1626,6 +1626,240 @@ async function closeChat() {
 }
 
 // ============================================================
+// DELETE ALL CHAT HISTORY
+// ============================================================
+
+async function deleteAllChatHistory() {
+
+    // ========================================================
+    // AUTHENTICATION CHECK
+    // ========================================================
+
+    if (
+        !chatAuthenticated ||
+        !sessionToken
+    ) {
+
+        alert(
+            "You are not authenticated."
+        );
+
+        return;
+    }
+
+
+    // ========================================================
+    // CONFIRMATION
+    // ========================================================
+
+    const confirmed =
+        confirm(
+            "WARNING!\n\n" +
+            "This will permanently delete ALL update messages " +
+            "from the database.\n\n" +
+            "This action cannot be undone.\n\n" +
+            "Are you sure you want to continue?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+    }
+
+
+    // ========================================================
+    // BUTTON
+    // ========================================================
+
+    const button =
+        document.getElementById(
+            "deleteChatHistoryBtn"
+        );
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+            "Deleting...";
+    }
+
+
+    try {
+
+        console.log(
+            "Deleting all update history..."
+        );
+
+
+        // ====================================================
+        // DELETE REQUEST
+        // ====================================================
+
+        const response =
+            await fetch(
+                MESSAGES_API,
+                {
+                    method: "DELETE",
+
+                    headers: {
+
+                        "Accept":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${sessionToken}`
+                    }
+                }
+            );
+
+
+        // ====================================================
+        // READ RESPONSE
+        // ====================================================
+
+        let result = null;
+
+
+        try {
+
+            result =
+                await response.json();
+
+        } catch (jsonError) {
+
+            console.error(
+                "Unable to parse delete response:",
+                jsonError
+            );
+        }
+
+
+        console.log(
+            "Delete response:",
+            response.status,
+            result
+        );
+
+
+        // ====================================================
+        // AUTHENTICATION EXPIRED
+        // ====================================================
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            handleAuthenticationExpired();
+
+            return;
+        }
+
+
+        // ====================================================
+        // SERVER ERROR
+        // ====================================================
+
+        if (!response.ok) {
+
+            throw new Error(
+
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : `Server returned ${response.status}`
+            );
+        }
+
+
+        // ====================================================
+        // APPLICATION ERROR
+        // ====================================================
+
+        if (
+            !result ||
+            !result.success
+        ) {
+
+            throw new Error(
+
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : "Unable to delete update history."
+            );
+        }
+
+
+        // ====================================================
+        // SUCCESS
+        // ====================================================
+
+        console.log(
+             "All updates have been deleted successfully."
+        );
+
+
+        // Reset the message signature so that
+        // an empty Firebase response is rendered.
+
+        lastMessageSignature = "";
+
+
+        // Clear the chat window immediately.
+
+        const chat =
+            document.getElementById(
+                "askme"
+            );
+
+
+        if (chat) {
+
+            chat.innerHTML = "";
+        }
+
+
+        alert(
+            "All updates have been deleted successfully."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete chat history error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Unable to delete updates"
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Delete updates";
+        }
+    }
+}
+
+
+// ============================================================
 // AUTHENTICATION EXPIRED
 // ============================================================
 
@@ -1796,6 +2030,16 @@ document.addEventListener(
                 "click",
                 closeChat
             );
+			
+			document
+			.getElementById(
+				"deleteChatHistoryBtn"
+			)
+			.addEventListener(
+				"click",
+				deleteAllChatHistory
+			);
+	
 
     }
 );

@@ -538,6 +538,26 @@ body {
     cursor: not-allowed;
 }
 
+/* Clear communications */
+.delete-chat-button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.delete-chat-button:hover {
+    background: #b02a37;
+}
+
+.delete-chat-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 
 /* ================================
    LOADING / ERROR
