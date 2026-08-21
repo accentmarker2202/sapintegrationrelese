@@ -279,7 +279,7 @@ async function verifyDate() {
     ) {
 
         dateError.textContent =
-            "Please enter the date in YYYY-MM-DD format.";
+            "Unable to pull any information on this date.";
 
         return;
     }
