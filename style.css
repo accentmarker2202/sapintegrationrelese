@@ -538,20 +538,45 @@ body {
     cursor: not-allowed;
 }
 
-/* Clear communications */
+/* ============================================================
+   DELETE CHAT HISTORY BUTTON
+   ============================================================ */
+
 .delete-chat-button {
-    background: #dc3545;
-    color: white;
-    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
     padding: 10px 16px;
+
+    background: #f1f1f1;
+    color: #333333;
+
+    border: 1px solid #cccccc;
     border-radius: 6px;
-    cursor: pointer;
+
+    font-size: 14px;
     font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    box-sizing: border-box;
 }
 
+
 .delete-chat-button:hover {
-    background: #b02a37;
+    background: #e5e5e5;
 }
+
+
+.delete-chat-button:active {
+    transform: scale(0.98);
+}
+
 
 .delete-chat-button:disabled {
     opacity: 0.6;
@@ -620,6 +645,13 @@ body {
 
     .chat-password-card {
         padding: 25px 20px;
+    }
+	
+	 .delete-chat-button {
+        width: 100%;
+        min-height: 44px;
+        padding: 11px 12px;
+        font-size: 14px;
     }
 
     #askme {
