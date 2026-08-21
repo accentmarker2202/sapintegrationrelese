@@ -21,7 +21,6 @@ const MESSAGES_API =
 const LOGOUT_API =
     `${API_BASE}/logout`;
 
-
 // ============================================================
 // AUTHENTICATION STATE
 // ============================================================
@@ -34,6 +33,16 @@ let csrfToken = "";
 
 let chatAuthenticated = false;
 
+
+// ============================================================
+// CHAT STATE
+// ============================================================
+
+let chatInitialized = false;
+
+let messagePolling = null;
+
+let lastMessageSignature = "";
 
 // ============================================================
 // LOAD SAP CONTENT
