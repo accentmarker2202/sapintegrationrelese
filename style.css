@@ -223,8 +223,11 @@ body {
 #askmeHeader {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+
     padding: 20px;
+
     text-align: center;
+
     font-size: 24px;
     font-weight: bold;
 
@@ -235,17 +238,29 @@ body {
     align-items: center;
 
     flex-shrink: 0;
+
+    gap: 10px;
 }
 
 .close-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
+
     border: 1px solid white;
+
     padding: 8px 15px;
+
     border-radius: 5px;
+
     cursor: pointer;
+
     transition: background 0.3s;
+
     font-size: 14px;
+
+    white-space: nowrap;
+
+    flex-shrink: 0;
 }
 
 .close-btn:hover {
@@ -313,12 +328,15 @@ body {
 
 #chatPassword {
     width: 100%;
+
     padding: 13px;
 
     border: 2px solid #ddd;
+
     border-radius: 7px;
 
     font-size: 16px;
+
     outline: none;
 }
 
@@ -328,11 +346,13 @@ body {
 
 #passwordForm button {
     width: 100%;
+
     margin-top: 12px;
 
     padding: 13px;
 
     border: none;
+
     border-radius: 7px;
 
     background: linear-gradient(
@@ -344,6 +364,7 @@ body {
     color: white;
 
     font-size: 16px;
+
     font-weight: bold;
 
     cursor: pointer;
@@ -360,9 +381,11 @@ body {
 
 #passwordError {
     min-height: 20px;
+
     margin-top: 12px;
 
     color: #d93025;
+
     font-size: 14px;
 }
 
@@ -370,6 +393,7 @@ body {
     margin-top: 15px;
 
     border: none;
+
     background: transparent;
 
     color: #666;
@@ -390,6 +414,7 @@ body {
     display: none;
 
     flex: 1 1 auto;
+
     min-height: 0;
 
     flex-direction: column;
@@ -425,6 +450,7 @@ body {
     background: white;
 
     padding: 12px;
+
     margin-bottom: 10px;
 
     border-radius: 8px;
@@ -435,11 +461,13 @@ body {
     border-left: 4px solid #667eea;
 
     word-wrap: break-word;
+
     overflow-wrap: break-word;
 }
 
 .message-user {
     font-weight: bold;
+
     color: #667eea;
 
     margin-bottom: 5px;
@@ -451,6 +479,7 @@ body {
     color: #333;
 
     word-wrap: break-word;
+
     overflow-wrap: break-word;
 
     white-space: pre-wrap;
@@ -465,6 +494,7 @@ body {
     display: flex;
 
     flex: 0 0 auto;
+
     flex-shrink: 0;
 
     padding: 15px;
@@ -486,6 +516,7 @@ body {
     flex: 1 1 auto;
 
     min-width: 0;
+
     width: 100%;
 
     padding: 12px;
@@ -499,11 +530,13 @@ body {
     transition: border-color 0.3s;
 
     background: white;
+
     color: #333;
 }
 
 #msg:focus {
     outline: none;
+
     border-color: #667eea;
 }
 
@@ -535,32 +568,47 @@ body {
 
 #form button:disabled {
     opacity: 0.6;
+
     cursor: not-allowed;
 }
 
+
 /* ============================================================
    DELETE CHAT HISTORY BUTTON
+   Same appearance as the normal action/update button
    ============================================================ */
 
 .delete-chat-button {
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
+    padding: 12px 25px;
 
     min-height: 42px;
 
-    padding: 10px 16px;
+    background: #667eea;
 
-    background: #f1f1f1;
-    color: #333333;
+    color: white;
 
-    border: 1px solid #cccccc;
-    border-radius: 6px;
+    border: none;
 
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 5px;
 
     cursor: pointer;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    transition:
+        background 0.3s,
+        opacity 0.3s,
+        transform 0.1s;
+
+    flex-shrink: 0;
 
     white-space: nowrap;
 
@@ -568,38 +616,52 @@ body {
 }
 
 
+/* Delete button hover */
+
 .delete-chat-button:hover {
-    background: #e5e5e5;
+    background: #764ba2;
 }
 
+
+/* Delete button click */
 
 .delete-chat-button:active {
     transform: scale(0.98);
 }
 
 
+/* Delete button disabled */
+
 .delete-chat-button:disabled {
     opacity: 0.6;
+
     cursor: not-allowed;
 }
 
 
-/* ================================
+/* ============================================================
    LOADING / ERROR
 ================================ */
 
 .loading {
     text-align: center;
+
     color: #999;
+
     font-style: italic;
+
     padding: 20px;
 }
 
 .error-message {
     color: #b00020;
+
     background: #ffe5e5;
+
     padding: 12px;
+
     border-radius: 5px;
+
     margin-bottom: 15px;
 }
 
@@ -612,72 +674,132 @@ body {
 
     .menu-bar a {
         padding: 12px 10px;
+
         font-size: 14px;
     }
+
 
     #sapContainer {
         padding: 15px;
     }
 
+
     .date-row {
         align-items: stretch;
+
         flex-direction: column;
     }
+
 
     .date-selector-container input {
         max-width: none;
     }
 
+
     #verifyDateButton {
         width: 100%;
     }
 
+
+    /* ============================
+       CHAT HEADER MOBILE
+    ============================ */
+
     #askmeHeader {
         font-size: 18px;
+
         padding: 12px 10px;
+
         flex-shrink: 0;
+
+        gap: 6px;
     }
+
 
     .close-btn {
         padding: 7px 10px;
+
         font-size: 13px;
     }
+
+
+    /* ============================
+       PASSWORD CARD MOBILE
+    ============================ */
 
     .chat-password-card {
         padding: 25px 20px;
     }
-	
-	 .delete-chat-button {
-        width: 100%;
-        min-height: 44px;
-        padding: 11px 12px;
+
+
+    /* ============================
+       DELETE BUTTON MOBILE
+       Does NOT become full width
+    ============================ */
+
+    .delete-chat-button {
+        display: inline-flex;
+
+        width: auto;
+
+        min-height: 42px;
+
+        padding: 10px 14px;
+
         font-size: 14px;
+
+        flex-shrink: 0;
+
+        white-space: nowrap;
     }
+
+
+    /* ============================
+       CHAT MESSAGES MOBILE
+    ============================ */
 
     #askme {
         padding: 10px;
+
         min-height: 0;
+
         overflow-y: auto;
+
         -webkit-overflow-scrolling: touch;
     }
 
+
+    /* ============================
+       CHAT INPUT MOBILE
+    ============================ */
+
     #form {
         padding: 8px;
+
         gap: 6px;
+
         width: 100%;
+
         flex-shrink: 0;
     }
+
 
     #msg {
         min-width: 0;
+
         width: 100%;
+
         padding: 10px;
+
         font-size: 16px;
     }
 
+
     #form button {
         padding: 10px 14px;
+
         flex-shrink: 0;
+
         font-size: 14px;
     }
 }
@@ -691,30 +813,55 @@ body {
 
     #askmeHeader {
         font-size: 16px;
+
         padding: 10px;
+
+        gap: 5px;
     }
+
 
     .close-btn {
         padding: 6px 8px;
+
         font-size: 12px;
     }
+
 
     #askme {
         padding: 8px;
     }
 
+
     #form {
         padding: 6px;
+
         gap: 5px;
     }
 
+
     #msg {
         padding: 9px;
+
         font-size: 16px;
     }
 
+
     #form button {
         padding: 9px 11px;
+
+        font-size: 13px;
+    }
+
+
+    /* ============================
+       DELETE BUTTON VERY SMALL
+    ============================ */
+
+    .delete-chat-button {
+        min-height: 40px;
+
+        padding: 9px 11px;
+
         font-size: 13px;
     }
 }
