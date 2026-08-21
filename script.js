@@ -553,10 +553,6 @@ async function loginToChat(event) {
 // LOAD MESSAGES
 // ============================================================
 
-// ============================================================
-// LOAD MESSAGES
-// ============================================================
-
 async function loadMessages() {
 
     if (!chatAuthenticated) {
@@ -583,12 +579,56 @@ async function loadMessages() {
     }
 
 
+    const chat =
+        document.getElementById("askme");
+
+
+    if (!chat) {
+
+        console.error(
+            "CRITICAL: #askme element was not found."
+        );
+
+        return;
+    }
+
+
     try {
 
         console.log(
-            "Loading messages from backend..."
+            "=========================================="
         );
 
+        console.log(
+            "LOADING CHAT MESSAGES"
+        );
+
+        console.log(
+            "=========================================="
+        );
+
+
+        console.log(
+            "Messages API:",
+            MESSAGES_API
+        );
+
+
+        console.log(
+            "Authenticated:",
+            chatAuthenticated
+        );
+
+
+        console.log(
+            "Session token exists:",
+            Boolean(sessionToken)
+        );
+
+
+        // ====================================================
+        // REQUEST
+        // ====================================================
 
         const response =
             await fetch(
@@ -609,17 +649,21 @@ async function loadMessages() {
 
 
         console.log(
-            "Messages API status:",
+            "Messages HTTP status:",
             response.status
         );
 
+
+        // ====================================================
+        // READ RESPONSE AS TEXT FIRST
+        // ====================================================
 
         const responseText =
             await response.text();
 
 
         console.log(
-            "Messages API response:",
+            "Messages raw response:",
             responseText
         );
 
@@ -634,21 +678,28 @@ async function loadMessages() {
                     responseText
                 );
 
-        } catch (jsonError) {
+        } catch (error) {
 
             console.error(
-                "Unable to parse messages response:",
-                jsonError
+                "Messages response is not valid JSON:",
+                error
             );
 
+
             throw new Error(
-                "Server returned an invalid response."
+                "The server returned an invalid response."
             );
         }
 
 
+        console.log(
+            "Messages parsed response:",
+            result
+        );
+
+
         // ====================================================
-        // AUTHENTICATION EXPIRED
+        // AUTHENTICATION FAILURE
         // ====================================================
 
         if (
@@ -675,35 +726,51 @@ async function loadMessages() {
         if (!response.ok) {
 
             console.error(
-                "Messages API error:",
+                "Messages API returned an error:",
+                response.status,
                 result
             );
 
 
             throw new Error(
-                result.error ||
-                `Server returned ${response.status}`
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : `Server returned HTTP ${response.status}.`
             );
         }
 
 
         // ====================================================
-        // CHECK SUCCESS
+        // SUCCESS CHECK
         // ====================================================
 
         if (
-            !result.success
+            !result ||
+            result.success !== true
         ) {
 
+            console.error(
+                "Messages API reported failure:",
+                result
+            );
+
+
             throw new Error(
-                result.error ||
-                "Failed to load messages."
+                result &&
+                result.error
+
+                    ? result.error
+
+                    : "The server did not return successful message data."
             );
         }
 
 
         // ====================================================
-        // CHECK MESSAGE ARRAY
+        // MESSAGE ARRAY CHECK
         // ====================================================
 
         if (
@@ -713,19 +780,19 @@ async function loadMessages() {
         ) {
 
             console.error(
-                "Invalid messages data:",
+                "Messages property is not an array:",
                 result
             );
 
 
             throw new Error(
-                "Invalid messages data received from server."
+                "Invalid message data received from the server."
             );
         }
 
 
         console.log(
-            "Messages received from Firebase:",
+            "Messages received:",
             result.messages.length
         );
 
@@ -734,8 +801,44 @@ async function loadMessages() {
         // RENDER
         // ====================================================
 
-        renderMessages(
-            result.messages
+        try {
+
+            renderMessages(
+                result.messages
+            );
+
+        } catch (renderError) {
+
+            console.error(
+                "=========================================="
+            );
+
+            console.error(
+                "MESSAGE RENDERING ERROR"
+            );
+
+            console.error(
+                "=========================================="
+            );
+
+            console.error(
+                renderError
+            );
+
+
+            throw new Error(
+                "Messages were received but could not be displayed."
+            );
+        }
+
+
+        console.log(
+            "Messages rendered successfully."
+        );
+
+
+        console.log(
+            "=========================================="
         );
 
 
@@ -759,7 +862,8 @@ async function loadMessages() {
 
 
         showChatError(
-            "Unable to connect to the chat server."
+            error.message ||
+            "Unable to load chat messages."
         );
     }
 }
@@ -770,25 +874,92 @@ async function loadMessages() {
 
 function renderMessages(messages) {
 
+    console.log(
+        "renderMessages() started."
+    );
+
+
+    // ========================================================
+    // FIND CHAT CONTAINER
+    // ========================================================
+
     const chat =
         document.getElementById(
             "askme"
         );
 
 
-    if (!Array.isArray(messages)) {
-        return;
+    if (!chat) {
+
+        throw new Error(
+            "Chat message container #askme was not found in the HTML."
+        );
     }
 
 
-    const signature =
-        JSON.stringify(messages);
-
+    // ========================================================
+    // VALIDATE ARRAY
+    // ========================================================
 
     if (
+        !Array.isArray(messages)
+    ) {
+
+        throw new Error(
+            "Messages data is not an array."
+        );
+    }
+
+
+    console.log(
+        "Rendering",
+        messages.length,
+        "messages."
+    );
+
+
+    // ========================================================
+    // CREATE SIGNATURE
+    // ========================================================
+
+    let signature;
+
+
+    try {
+
+        signature =
+            JSON.stringify(
+                messages
+            );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to create message signature:",
+            error
+        );
+
+        signature =
+            "";
+    }
+
+
+    // ========================================================
+    // DON'T RE-RENDER IDENTICAL DATA
+    // ========================================================
+
+    if (
+        typeof lastMessageSignature !==
+        "undefined" &&
+
         signature ===
         lastMessageSignature
     ) {
+
+        console.log(
+            "Messages have not changed. No re-render needed."
+        );
+
         return;
     }
 
@@ -797,72 +968,168 @@ function renderMessages(messages) {
         signature;
 
 
+    // ========================================================
+    // CLEAR CHAT
+    // ========================================================
+
     chat.innerHTML = "";
 
 
-    messages.forEach(message => {
+    // ========================================================
+    // EMPTY DATABASE
+    // ========================================================
 
-        const messageElement =
+    if (
+        messages.length === 0
+    ) {
+
+        const emptyElement =
             document.createElement(
                 "div"
             );
 
 
-        messageElement.className =
-            "message";
+        emptyElement.className =
+            "empty-chat-message";
 
 
-        const userElement =
-            document.createElement(
-                "div"
-            );
-
-
-        userElement.className =
-            "message-user";
-
-
-        userElement.textContent =
-            `${message.username}:`;
-
-
-        const textElement =
-            document.createElement(
-                "div"
-            );
-
-
-        textElement.className =
-            "message-text";
-
-
-        /*
-         * textContent prevents HTML injection.
-         */
-
-        textElement.textContent =
-            message.text;
-
-
-        messageElement.appendChild(
-            userElement
-        );
-
-
-        messageElement.appendChild(
-            textElement
-        );
+        emptyElement.textContent =
+            "No messages yet.";
 
 
         chat.appendChild(
-            messageElement
+            emptyElement
         );
 
-    });
 
+        return;
+    }
+
+
+    // ========================================================
+    // RENDER EACH MESSAGE
+    // ========================================================
+
+    messages.forEach(
+        (message, index) => {
+
+            try {
+
+                const messageElement =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                messageElement.className =
+                    "message";
+
+
+                // ==================================================
+                // USERNAME
+                // ==================================================
+
+                const userElement =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                userElement.className =
+                    "message-user";
+
+
+                const username =
+                    message &&
+                    typeof message.username ===
+                    "string"
+
+                        ? message.username
+
+                        : "Unknown";
+
+
+                userElement.textContent =
+                    `${username}:`;
+
+
+                // ==================================================
+                // MESSAGE TEXT
+                // ==================================================
+
+                const textElement =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                textElement.className =
+                    "message-text";
+
+
+                const text =
+                    message &&
+                    typeof message.text ===
+                    "string"
+
+                        ? message.text
+
+                        : "";
+
+
+                /*
+                 * textContent is deliberately used instead
+                 * of innerHTML for security.
+                 */
+
+                textElement.textContent =
+                    text;
+
+
+                // ==================================================
+                // APPEND
+                // ==================================================
+
+                messageElement.appendChild(
+                    userElement
+                );
+
+
+                messageElement.appendChild(
+                    textElement
+                );
+
+
+                chat.appendChild(
+                    messageElement
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to render message:",
+                    index,
+                    message,
+                    error
+                );
+            }
+
+        }
+    );
+
+
+    // ========================================================
+    // SCROLL TO BOTTOM
+    // ========================================================
 
     chat.scrollTop =
         chat.scrollHeight;
+
+
+    console.log(
+        "Chat DOM updated successfully."
+    );
 }
 
 
@@ -874,28 +1141,62 @@ function startMessagePolling() {
 
     stopMessagePolling();
 
+
+    console.log(
+        "Starting message polling."
+    );
+
+
     loadMessages();
 
 
     messagePolling =
         setInterval(
-            loadMessages,
+            () => {
+
+                if (
+                    chatAuthenticated &&
+                    sessionToken
+                ) {
+
+                    loadMessages();
+
+                } else {
+
+                    stopMessagePolling();
+                }
+
+            },
             2000
         );
 }
 
 
+// ============================================================
+// STOP POLLING
+// ============================================================
+
 function stopMessagePolling() {
 
-    if (messagePolling) {
+    if (
+        messagePolling
+    ) {
 
         clearInterval(
             messagePolling
         );
 
-        messagePolling = null;
+
+        messagePolling =
+            null;
+
+
+        console.log(
+            "Message polling stopped."
+        );
     }
 }
+
 
 
 // ============================================================
