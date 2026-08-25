@@ -256,23 +256,45 @@
             <div id="askme"></div>
 
 
-            <form id="form">
+<form id="form">
 
-                <input
-                    type="text"
-                    id="msg"
-                    placeholder="information to be checked ..."
-                    required
-                    autocomplete="off"
-                    maxlength="2000"
-                >
+    <!-- PHOTO INPUT -->
+    <input
+        type="file"
+        id="imageInput"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        hidden
+    >
 
+    <!-- PHOTO BUTTON -->
+    <button
+        type="button"
+        id="photoButton"
+        class="photo-button"
+        title="Send photo"
+        aria-label="Send photo"
+    >
+        📷
+    </button>
 
-                <button type="submit">
-                    Notify to SAP
-                </button>
+    <!-- TEXT INPUT -->
+    <input
+        type="text"
+        id="msg"
+        placeholder="information to be checked ..."
+        autocomplete="off"
+        maxlength="2000"
+    >
 
-            </form>
+    <!-- SEND TEXT -->
+    <button
+        type="submit"
+        id="sendMessageButton"
+    >
+        Notify to SAP
+    </button>
+
+</form>
 
         </div>
 

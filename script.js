@@ -21,6 +21,7 @@ const MESSAGES_API =
 const LOGOUT_API =
     `${API_BASE}/logout`;
 
+
 // ============================================================
 // AUTHENTICATION STATE
 // ============================================================
@@ -43,6 +44,27 @@ let chatInitialized = false;
 let messagePolling = null;
 
 let lastMessageSignature = "";
+
+
+// ============================================================
+// IMAGE CONFIGURATION
+// ============================================================
+
+const MAX_IMAGE_SIZE =
+    5 * 1024 * 1024; // 5 MB
+
+
+const ALLOWED_IMAGE_TYPES = [
+
+    "image/jpeg",
+
+    "image/png",
+
+    "image/gif",
+
+    "image/webp"
+];
+
 
 // ============================================================
 // LOAD SAP CONTENT
@@ -186,9 +208,17 @@ function loadSapContent() {
     `;
 
 
-    document.getElementById(
-        "sapText"
-    ).innerHTML = sapContent;
+    const sapText =
+        document.getElementById(
+            "sapText"
+        );
+
+
+    if (sapText) {
+
+        sapText.innerHTML =
+            sapContent;
+    }
 }
 
 
@@ -215,7 +245,8 @@ function showChatPasswordGate() {
 
     document
         .getElementById("sapContainer")
-        .style.display = "none";
+        .style.display =
+        "none";
 
 
     document
@@ -240,12 +271,6 @@ function showChatPasswordGate() {
 
 // ============================================================
 // VERIFY DATE
-//
-// IMPORTANT:
-//
-// The target date is calculated ONLY by Vercel.
-// There is deliberately NO getTargetDate()
-// function in this frontend.
 // ============================================================
 
 async function verifyDate() {
@@ -279,7 +304,7 @@ async function verifyDate() {
     ) {
 
         dateError.textContent =
-            "Unable to pull any information on this date.";
+            "Please enter the date in YYYY-MM-DD format.";
 
         return;
     }
@@ -297,9 +322,12 @@ async function verifyDate() {
             await fetch(
                 VERIFY_DATE_API,
                 {
-                    method: "POST",
+
+                    method:
+                        "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json",
 
@@ -307,9 +335,12 @@ async function verifyDate() {
                             "application/json"
                     },
 
-                    body: JSON.stringify({
-                        date: dateInput
-                    })
+                    body:
+                        JSON.stringify({
+
+                            date:
+                                dateInput
+                        })
                 }
             );
 
@@ -438,9 +469,12 @@ async function loginToChat(event) {
             await fetch(
                 LOGIN_API,
                 {
-                    method: "POST",
+
+                    method:
+                        "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json",
 
@@ -448,14 +482,15 @@ async function loginToChat(event) {
                             "application/json"
                     },
 
-                    body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                        password:
-                            password,
+                            password:
+                                password,
 
-                        dateToken:
-                            dateToken
-                    })
+                            dateToken:
+                                dateToken
+                        })
                 }
             );
 
@@ -580,23 +615,11 @@ async function loadMessages() {
             "loadMessages: sessionToken is missing."
         );
 
+
         showChatError(
             "Chat session is missing. Please login again."
         );
 
-        return;
-    }
-
-
-    const chat =
-        document.getElementById("askme");
-
-
-    if (!chat) {
-
-        console.error(
-            "CRITICAL: #askme element was not found."
-        );
 
         return;
     }
@@ -605,45 +628,17 @@ async function loadMessages() {
     try {
 
         console.log(
-            "=========================================="
+            "Loading messages from backend..."
         );
 
-        console.log(
-            "LOADING CHAT MESSAGES"
-        );
-
-        console.log(
-            "=========================================="
-        );
-
-
-        console.log(
-            "Messages API:",
-            MESSAGES_API
-        );
-
-
-        console.log(
-            "Authenticated:",
-            chatAuthenticated
-        );
-
-
-        console.log(
-            "Session token exists:",
-            Boolean(sessionToken)
-        );
-
-
-        // ====================================================
-        // REQUEST
-        // ====================================================
 
         const response =
             await fetch(
                 `${MESSAGES_API}?limit=50`,
                 {
-                    method: "GET",
+
+                    method:
+                        "GET",
 
                     headers: {
 
@@ -658,21 +653,17 @@ async function loadMessages() {
 
 
         console.log(
-            "Messages HTTP status:",
+            "Messages API status:",
             response.status
         );
 
-
-        // ====================================================
-        // READ RESPONSE AS TEXT FIRST
-        // ====================================================
 
         const responseText =
             await response.text();
 
 
         console.log(
-            "Messages raw response:",
+            "Messages API response:",
             responseText
         );
 
@@ -687,28 +678,22 @@ async function loadMessages() {
                     responseText
                 );
 
-        } catch (error) {
+        } catch (jsonError) {
 
             console.error(
-                "Messages response is not valid JSON:",
-                error
+                "Unable to parse messages response:",
+                jsonError
             );
 
 
             throw new Error(
-                "The server returned an invalid response."
+                "Server returned an invalid response."
             );
         }
 
 
-        console.log(
-            "Messages parsed response:",
-            result
-        );
-
-
         // ====================================================
-        // AUTHENTICATION FAILURE
+        // AUTHENTICATION EXPIRED
         // ====================================================
 
         if (
@@ -734,52 +719,30 @@ async function loadMessages() {
 
         if (!response.ok) {
 
-            console.error(
-                "Messages API returned an error:",
-                response.status,
-                result
-            );
-
-
             throw new Error(
-                result &&
-                result.error
-
-                    ? result.error
-
-                    : `Server returned HTTP ${response.status}.`
+                result.error ||
+                `Server returned ${response.status}`
             );
         }
 
 
         // ====================================================
-        // SUCCESS CHECK
+        // SUCCESS
         // ====================================================
 
         if (
-            !result ||
-            result.success !== true
+            !result.success
         ) {
 
-            console.error(
-                "Messages API reported failure:",
-                result
-            );
-
-
             throw new Error(
-                result &&
-                result.error
-
-                    ? result.error
-
-                    : "The server did not return successful message data."
+                result.error ||
+                "Failed to load messages."
             );
         }
 
 
         // ====================================================
-        // MESSAGE ARRAY CHECK
+        // MESSAGE ARRAY
         // ====================================================
 
         if (
@@ -788,66 +751,20 @@ async function loadMessages() {
             )
         ) {
 
-            console.error(
-                "Messages property is not an array:",
-                result
-            );
-
-
             throw new Error(
-                "Invalid message data received from the server."
+                "Invalid messages data received from server."
             );
         }
 
 
         console.log(
-            "Messages received:",
+            "Messages received from Firebase:",
             result.messages.length
         );
 
 
-        // ====================================================
-        // RENDER
-        // ====================================================
-
-        try {
-
-            renderMessages(
-                result.messages
-            );
-
-        } catch (renderError) {
-
-            console.error(
-                "=========================================="
-            );
-
-            console.error(
-                "MESSAGE RENDERING ERROR"
-            );
-
-            console.error(
-                "=========================================="
-            );
-
-            console.error(
-                renderError
-            );
-
-
-            throw new Error(
-                "Messages were received but could not be displayed."
-            );
-        }
-
-
-        console.log(
-            "Messages rendered successfully."
-        );
-
-
-        console.log(
-            "=========================================="
+        renderMessages(
+            result.messages
         );
 
 
@@ -857,13 +774,16 @@ async function loadMessages() {
             "=========================================="
         );
 
+
         console.error(
             "LOAD MESSAGES ERROR"
         );
 
+
         console.error(
             "=========================================="
         );
+
 
         console.error(
             error
@@ -871,26 +791,17 @@ async function loadMessages() {
 
 
         showChatError(
-            error.message ||
-            "Unable to load chat messages."
+            "Unable to connect to the chat server."
         );
     }
 }
+
 
 // ============================================================
 // RENDER MESSAGES
 // ============================================================
 
 function renderMessages(messages) {
-
-    console.log(
-        "renderMessages() started."
-    );
-
-
-    // ========================================================
-    // FIND CHAT CONTAINER
-    // ========================================================
 
     const chat =
         document.getElementById(
@@ -899,75 +810,30 @@ function renderMessages(messages) {
 
 
     if (!chat) {
+        return;
+    }
 
-        throw new Error(
-            "Chat message container #askme was not found in the HTML."
-        );
+
+    if (!Array.isArray(messages)) {
+        return;
     }
 
 
     // ========================================================
-    // VALIDATE ARRAY
+    // IMPORTANT:
+    // Prevent unnecessary redraws.
     // ========================================================
+
+    const signature =
+        JSON.stringify(
+            messages
+        );
+
 
     if (
-        !Array.isArray(messages)
-    ) {
-
-        throw new Error(
-            "Messages data is not an array."
-        );
-    }
-
-
-    console.log(
-        "Rendering",
-        messages.length,
-        "messages."
-    );
-
-
-    // ========================================================
-    // CREATE SIGNATURE
-    // ========================================================
-
-    let signature;
-
-
-    try {
-
-        signature =
-            JSON.stringify(
-                messages
-            );
-
-    } catch (error) {
-
-        console.error(
-            "Unable to create message signature:",
-            error
-        );
-
-        signature =
-            "";
-    }
-
-
-    // ========================================================
-    // DON'T RE-RENDER IDENTICAL DATA
-    // ========================================================
-
-    if (
-        typeof lastMessageSignature !==
-        "undefined" &&
-
         signature ===
         lastMessageSignature
     ) {
-
-        console.log(
-            "Messages have not changed. No re-render needed."
-        );
 
         return;
     }
@@ -977,94 +843,145 @@ function renderMessages(messages) {
         signature;
 
 
-    // ========================================================
-    // CLEAR CHAT
-    // ========================================================
-
     chat.innerHTML = "";
 
 
-    // ========================================================
-    // EMPTY DATABASE
-    // ========================================================
+    messages.forEach(
+        message => {
 
-    if (
-        messages.length === 0
-    ) {
+            const messageElement =
+                document.createElement(
+                    "div"
+                );
 
-        const emptyElement =
-            document.createElement(
-                "div"
+
+            messageElement.className =
+                "message";
+
+
+            // =================================================
+            // USERNAME
+            // =================================================
+
+            const userElement =
+                document.createElement(
+                    "div"
+                );
+
+
+            userElement.className =
+                "message-user";
+
+
+            userElement.textContent =
+                `${message.username || "Unknown"}:`;
+
+
+            messageElement.appendChild(
+                userElement
             );
 
 
-        emptyElement.className =
-            "empty-chat-message";
+            // =================================================
+            // IMAGE MESSAGE
+            // =================================================
 
+            if (
+                message.type === "image" &&
+                message.image &&
+                message.image.dataUrl
+            ) {
 
-        emptyElement.textContent =
-            "No messages yet.";
-
-
-        chat.appendChild(
-            emptyElement
-        );
-
-
-        return;
-    }
-
-
-    // ========================================================
-    // RENDER EACH MESSAGE
-    // ========================================================
-
-    messages.forEach(
-        (message, index) => {
-
-            try {
-
-                const messageElement =
+                const imageContainer =
                     document.createElement(
                         "div"
                     );
 
 
-                messageElement.className =
-                    "message";
+                imageContainer.className =
+                    "chat-image-container";
 
 
-                // ==================================================
-                // USERNAME
-                // ==================================================
-
-                const userElement =
+                const imageElement =
                     document.createElement(
-                        "div"
+                        "img"
                     );
 
 
-                userElement.className =
-                    "message-user";
+                imageElement.className =
+                    "chat-image";
 
 
-                const username =
-                    message &&
-                    typeof message.username ===
-                    "string"
-
-                        ? message.username
-
-                        : "Unknown";
+                imageElement.src =
+                    message.image.dataUrl;
 
 
-                userElement.textContent =
-                    `${username}:`;
+                imageElement.alt =
+                    message.image.originalName ||
+                    "Chat image";
 
 
-                // ==================================================
-                // MESSAGE TEXT
-                // ==================================================
+                imageElement.loading =
+                    "lazy";
+
+
+                imageElement.decoding =
+                    "async";
+
+
+                imageElement.addEventListener(
+                    "click",
+                    () => {
+
+                        openImageViewer(
+                            message.image.dataUrl
+                        );
+
+                    }
+                );
+
+
+                imageContainer.appendChild(
+                    imageElement
+                );
+
+
+                messageElement.appendChild(
+                    imageContainer
+                );
+
+
+                // Optional caption
+
+                if (
+                    message.text
+                ) {
+
+                    const caption =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    caption.className =
+                        "message-text";
+
+
+                    caption.textContent =
+                        message.text;
+
+
+                    messageElement.appendChild(
+                        caption
+                    );
+                }
+
+
+            } else {
+
+                // =============================================
+                // NORMAL TEXT MESSAGE
+                // =============================================
 
                 const textElement =
                     document.createElement(
@@ -1076,172 +993,343 @@ function renderMessages(messages) {
                     "message-text";
 
 
-                const text =
-                    message &&
-                    typeof message.text ===
-                    "string"
-
-                        ? message.text
-
-                        : "";
-
-
-                /*
-                 * textContent is deliberately used instead
-                 * of innerHTML for security.
-                 */
-
                 textElement.textContent =
-                    text;
-
-
-                // ==================================================
-                // APPEND
-                // ==================================================
-
-                messageElement.appendChild(
-                    userElement
-                );
+                    message.text || "";
 
 
                 messageElement.appendChild(
                     textElement
                 );
-
-
-                chat.appendChild(
-                    messageElement
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Unable to render message:",
-                    index,
-                    message,
-                    error
-                );
             }
+
+
+            // =================================================
+            // ADD TO CHAT
+            // =================================================
+
+            chat.appendChild(
+                messageElement
+            );
 
         }
     );
 
 
-    // ========================================================
-    // SCROLL TO BOTTOM
-    // ========================================================
-
     chat.scrollTop =
         chat.scrollHeight;
-
-
-    console.log(
-        "Chat DOM updated successfully."
-    );
 }
 
 
 // ============================================================
-// POLLING
+// IMAGE VIEWER
 // ============================================================
 
-function startMessagePolling() {
+function openImageViewer(
+    dataUrl
+) {
 
-    stopMessagePolling();
-
-
-    console.log(
-        "Starting message polling."
-    );
-
-
-    loadMessages();
+    if (!dataUrl) {
+        return;
+    }
 
 
-    messagePolling =
-        setInterval(
-            () => {
-
-                if (
-                    chatAuthenticated &&
-                    sessionToken
-                ) {
-
-                    loadMessages();
-
-                } else {
-
-                    stopMessagePolling();
-                }
-
-            },
-            2000
+    const overlay =
+        document.createElement(
+            "div"
         );
+
+
+    overlay.className =
+        "image-viewer-overlay";
+
+
+    const image =
+        document.createElement(
+            "img"
+        );
+
+
+    image.className =
+        "image-viewer-image";
+
+
+    image.src =
+        dataUrl;
+
+
+    image.alt =
+        "Chat image";
+
+
+    overlay.appendChild(
+        image
+    );
+
+
+    overlay.addEventListener(
+        "click",
+        () => {
+
+            overlay.remove();
+
+        }
+    );
+
+
+    document.body.appendChild(
+        overlay
+    );
 }
 
 
 // ============================================================
-// STOP POLLING
+// IMAGE UPLOAD
 // ============================================================
 
-function stopMessagePolling() {
+async function uploadImage(
+    file
+) {
 
     if (
-        messagePolling
+        !chatAuthenticated ||
+        !sessionToken
     ) {
 
-        clearInterval(
-            messagePolling
+        alert(
+            "Please login to the chat first."
+        );
+
+        return;
+    }
+
+
+    if (!file) {
+        return;
+    }
+
+
+    // ========================================================
+    // FILE TYPE CHECK
+    // ========================================================
+
+    if (
+        !ALLOWED_IMAGE_TYPES.includes(
+            file.type
+        )
+    ) {
+
+        alert(
+            "Please select a JPG, PNG, GIF, or WebP image."
+        );
+
+        return;
+    }
+
+
+    // ========================================================
+    // FILE SIZE CHECK
+    // ========================================================
+
+    if (
+        file.size >
+        MAX_IMAGE_SIZE
+    ) {
+
+        alert(
+            "Image is too large. Maximum size is 5 MB."
+        );
+
+        return;
+    }
+
+
+    const photoButton =
+        document.getElementById(
+            "photoButton"
         );
 
 
-        messagePolling =
-            null;
+    if (photoButton) {
+
+        photoButton.disabled =
+            true;
+
+        photoButton.textContent =
+            "Uploading...";
+    }
+
+
+    try {
+
+        console.log(
+            "Uploading image:",
+            file.name,
+            file.type,
+            file.size
+        );
+
+
+        // ====================================================
+        // MULTIPART FORM DATA
+        //
+        // DO NOT manually set Content-Type.
+        // Browser automatically adds the multipart boundary.
+        // ====================================================
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "image",
+            file,
+            file.name
+        );
+
+
+        const response =
+            await fetch(
+                MESSAGES_API,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${sessionToken}`,
+
+                        "Accept":
+                            "application/json"
+                    },
+
+                    body:
+                        formData
+                }
+            );
+
+
+        const responseText =
+            await response.text();
 
 
         console.log(
-            "Message polling stopped."
+            "Image upload response:",
+            response.status,
+            responseText
         );
+
+
+        let result;
+
+
+        try {
+
+            result =
+                JSON.parse(
+                    responseText
+                );
+
+        } catch (jsonError) {
+
+            throw new Error(
+                "Server returned an invalid response."
+            );
+        }
+
+
+        // ====================================================
+        // AUTHENTICATION EXPIRED
+        // ====================================================
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            handleAuthenticationExpired();
+
+            return;
+        }
+
+
+        // ====================================================
+        // SERVER ERROR
+        // ====================================================
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error ||
+                `Server returned ${response.status}`
+            );
+        }
+
+
+        // ====================================================
+        // APPLICATION ERROR
+        // ====================================================
+
+        if (
+            !result.success
+        ) {
+
+            throw new Error(
+                result.error ||
+                "Unable to upload image."
+            );
+        }
+
+
+        console.log(
+            "Image uploaded successfully."
+        );
+
+
+        // ====================================================
+        // REFRESH CHAT
+        // ====================================================
+
+        await loadMessages();
+
+
+    } catch (error) {
+
+        console.error(
+            "Image upload error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Unable to upload image. Please try again."
+        );
+
+
+    } finally {
+
+        if (photoButton) {
+
+            photoButton.disabled =
+                false;
+
+            photoButton.textContent =
+                "📷";
+        }
     }
 }
 
 
-
 // ============================================================
-// INITIALIZE CHAT
-// ============================================================
-
-function initializeChat() {
-
-    document
-        .getElementById("askme")
-        .innerHTML = "";
-
-
-    lastMessageSignature = "";
-
-
-    startMessagePolling();
-}
-
-
-// ============================================================
-// SEND MESSAGE
-// ============================================================
-
-// ============================================================
-// SEND MESSAGE
+// SEND TEXT MESSAGE
 // ============================================================
 
 async function sendMessage(event) {
 
     event.preventDefault();
 
-
-    // ========================================================
-    // AUTHENTICATION CHECK
-    // ========================================================
 
     if (
         !chatAuthenticated ||
@@ -1256,10 +1344,6 @@ async function sendMessage(event) {
     }
 
 
-    // ========================================================
-    // GET ELEMENTS
-    // ========================================================
-
     const input =
         document.getElementById(
             "msg"
@@ -1268,7 +1352,7 @@ async function sendMessage(event) {
 
     const button =
         document.querySelector(
-            "#form button"
+            "#form button[type='submit']"
         );
 
 
@@ -1282,27 +1366,14 @@ async function sendMessage(event) {
     }
 
 
-    // ========================================================
-    // READ MESSAGE
-    // ========================================================
-
     const text =
         input.value.trim();
 
 
-    // ========================================================
-    // EMPTY MESSAGE CHECK
-    // ========================================================
-
     if (!text) {
-
         return;
     }
 
-
-    // ========================================================
-    // MESSAGE LENGTH CHECK
-    // ========================================================
 
     if (
         text.length >
@@ -1317,11 +1388,8 @@ async function sendMessage(event) {
     }
 
 
-    // ========================================================
-    // DISABLE BUTTON
-    // ========================================================
-
-    button.disabled = true;
+    button.disabled =
+        true;
 
 
     const originalButtonText =
@@ -1334,24 +1402,13 @@ async function sendMessage(event) {
 
     try {
 
-        // ====================================================
-        // SEND TO VERCEL
-        //
-        // Authentication is now:
-        //
-        // Authorization:
-        // Bearer <sessionToken>
-        //
-        // NO COOKIES
-        // NO credentials: include
-        // NO X-CSRF-Token
-        // ====================================================
-
         const response =
             await fetch(
                 MESSAGES_API,
                 {
-                    method: "POST",
+
+                    method:
+                        "POST",
 
                     headers: {
 
@@ -1375,23 +1432,24 @@ async function sendMessage(event) {
             );
 
 
-        // ====================================================
-        // READ SERVER RESPONSE
-        // ====================================================
+        const responseText =
+            await response.text();
 
-        let result = null;
+
+        let result;
 
 
         try {
 
             result =
-                await response.json();
+                JSON.parse(
+                    responseText
+                );
 
         } catch (jsonError) {
 
-            console.error(
-                "Server returned an invalid JSON response:",
-                jsonError
+            throw new Error(
+                "Server returned an invalid response."
             );
         }
 
@@ -1405,11 +1463,6 @@ async function sendMessage(event) {
             response.status === 403
         ) {
 
-            console.error(
-                "Authentication expired or rejected."
-            );
-
-
             handleAuthenticationExpired();
 
             return;
@@ -1422,21 +1475,9 @@ async function sendMessage(event) {
 
         if (!response.ok) {
 
-            console.error(
-                "Send message failed:",
-                response.status,
-                result
-            );
-
-
             throw new Error(
-
-                result &&
-                result.error
-
-                    ? result.error
-
-                    : `Server returned ${response.status}`
+                result.error ||
+                `Server returned ${response.status}`
             );
         }
 
@@ -1451,32 +1492,19 @@ async function sendMessage(event) {
         ) {
 
             throw new Error(
-
-                result &&
-                result.error
-
-                    ? result.error
-
-                    : "Unable to send message."
+                result.error ||
+                "Unable to send message."
             );
         }
 
-
-        // ====================================================
-        // SUCCESS
-        // ====================================================
 
         console.log(
             "Message sent successfully."
         );
 
 
-        // Clear input
-
         input.value = "";
 
-
-        // Put cursor back in input
 
         input.focus();
 
@@ -1504,17 +1532,76 @@ async function sendMessage(event) {
 
     } finally {
 
-        // ====================================================
-        // RE-ENABLE BUTTON
-        // ====================================================
-
-        button.disabled = false;
+        button.disabled =
+            false;
 
         button.textContent =
             originalButtonText ||
             "Send";
     }
 }
+
+
+// ============================================================
+// POLLING
+// ============================================================
+
+function startMessagePolling() {
+
+    stopMessagePolling();
+
+
+    loadMessages();
+
+
+    messagePolling =
+        setInterval(
+            loadMessages,
+            2000
+        );
+}
+
+
+function stopMessagePolling() {
+
+    if (messagePolling) {
+
+        clearInterval(
+            messagePolling
+        );
+
+        messagePolling =
+            null;
+    }
+}
+
+
+// ============================================================
+// INITIALIZE CHAT
+// ============================================================
+
+function initializeChat() {
+
+    const chat =
+        document.getElementById(
+            "askme"
+        );
+
+
+    if (chat) {
+
+        chat.innerHTML =
+            "";
+    }
+
+
+    lastMessageSignature =
+        "";
+
+
+    startMessagePolling();
+}
+
 
 // ============================================================
 // LOGOUT
@@ -1530,9 +1617,12 @@ async function closeChat() {
         await fetch(
             LOGOUT_API,
             {
-                method: "POST",
+
+                method:
+                    "POST",
 
                 headers: {
+
                     "Accept":
                         "application/json",
 
@@ -1559,7 +1649,8 @@ async function closeChat() {
 
         csrfToken = "";
 
-        chatAuthenticated = false;
+        chatAuthenticated =
+            false;
 
 
         document.getElementById(
@@ -1619,242 +1710,25 @@ async function closeChat() {
         ).value = "";
 
 
-        chatInitialized = false;
-
-        lastMessageSignature = "";
-    }
-}
-
-// ============================================================
-// DELETE ALL CHAT HISTORY
-// ============================================================
-
-async function deleteAllChatHistory() {
-
-    // ========================================================
-    // AUTHENTICATION CHECK
-    // ========================================================
-
-    if (
-        !chatAuthenticated ||
-        !sessionToken
-    ) {
-
-        alert(
-            "You are not authenticated."
-        );
-
-        return;
-    }
-
-
-    // ========================================================
-    // CONFIRMATION
-    // ========================================================
-
-    const confirmed =
-        confirm(
-            "WARNING!\n\n" +
-            "This will permanently delete ALL update messages " +
-            "from the database.\n\n" +
-            "This action cannot be undone.\n\n" +
-            "Are you sure you want to continue?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-    }
-
-
-    // ========================================================
-    // BUTTON
-    // ========================================================
-
-    const button =
-        document.getElementById(
-            "deleteChatHistoryBtn"
-        );
-
-
-    if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-            "Deleting...";
-    }
-
-
-    try {
-
-        console.log(
-            "Deleting all update history..."
-        );
-
-
-        // ====================================================
-        // DELETE REQUEST
-        // ====================================================
-
-        const response =
-            await fetch(
-                MESSAGES_API,
-                {
-                    method: "DELETE",
-
-                    headers: {
-
-                        "Accept":
-                            "application/json",
-
-                        "Authorization":
-                            `Bearer ${sessionToken}`
-                    }
-                }
-            );
-
-
-        // ====================================================
-        // READ RESPONSE
-        // ====================================================
-
-        let result = null;
-
-
-        try {
-
-            result =
-                await response.json();
-
-        } catch (jsonError) {
-
-            console.error(
-                "Unable to parse delete response:",
-                jsonError
-            );
-        }
-
-
-        console.log(
-            "Delete response:",
-            response.status,
-            result
-        );
-
-
-        // ====================================================
-        // AUTHENTICATION EXPIRED
-        // ====================================================
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            handleAuthenticationExpired();
-
-            return;
-        }
-
-
-        // ====================================================
-        // SERVER ERROR
-        // ====================================================
-
-        if (!response.ok) {
-
-            throw new Error(
-
-                result &&
-                result.error
-
-                    ? result.error
-
-                    : `Server returned ${response.status}`
-            );
-        }
-
-
-        // ====================================================
-        // APPLICATION ERROR
-        // ====================================================
-
-        if (
-            !result ||
-            !result.success
-        ) {
-
-            throw new Error(
-
-                result &&
-                result.error
-
-                    ? result.error
-
-                    : "Unable to delete update history."
-            );
-        }
-
-
-        // ====================================================
-        // SUCCESS
-        // ====================================================
-
-        console.log(
-             "All updates have been deleted successfully."
-        );
-
-
-        // Reset the message signature so that
-        // an empty Firebase response is rendered.
-
-        lastMessageSignature = "";
-
-
-        // Clear the chat window immediately.
-
-        const chat =
+        const imageInput =
             document.getElementById(
-                "askme"
+                "imageInput"
             );
 
 
-        if (chat) {
+        if (imageInput) {
 
-            chat.innerHTML = "";
+            imageInput.value =
+                "";
         }
 
 
-        alert(
-            "All updates have been deleted successfully."
-        );
+        chatInitialized =
+            false;
 
 
-    } catch (error) {
-
-        console.error(
-            "Delete chat history error:",
-            error
-        );
-
-
-        alert(
-            error.message ||
-            "Unable to delete updates"
-        );
-
-
-    } finally {
-
-        if (button) {
-
-            button.disabled = false;
-
-            button.textContent =
-                "Delete updates";
-        }
+        lastMessageSignature =
+            "";
     }
 }
 
@@ -1865,9 +1739,16 @@ async function deleteAllChatHistory() {
 
 function handleAuthenticationExpired() {
 
-    chatAuthenticated = false;
+    chatAuthenticated =
+        false;
 
-    csrfToken = "";
+
+    sessionToken =
+        "";
+
+
+    csrfToken =
+        "";
 
 
     stopMessagePolling();
@@ -1896,7 +1777,8 @@ function handleAuthenticationExpired() {
 
     document.getElementById(
         "sapContainer"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
 
     document.getElementById(
@@ -1904,9 +1786,12 @@ function handleAuthenticationExpired() {
     ).value = "";
 
 
-    chatInitialized = false;
+    chatInitialized =
+        false;
 
-    lastMessageSignature = "";
+
+    lastMessageSignature =
+        "";
 
 
     alert(
@@ -1919,7 +1804,9 @@ function handleAuthenticationExpired() {
 // ERROR
 // ============================================================
 
-function showChatError(message) {
+function showChatError(
+    message
+) {
 
     const chat =
         document.getElementById(
@@ -1927,7 +1814,13 @@ function showChatError(message) {
         );
 
 
-    chat.innerHTML = "";
+    if (!chat) {
+        return;
+    }
+
+
+    chat.innerHTML =
+        "";
 
 
     const errorElement =
@@ -1951,6 +1844,94 @@ function showChatError(message) {
 
 
 // ============================================================
+// IMAGE BUTTON SETUP
+// ============================================================
+
+function initializeImageUpload() {
+
+    const photoButton =
+        document.getElementById(
+            "photoButton"
+        );
+
+
+    const imageInput =
+        document.getElementById(
+            "imageInput"
+        );
+
+
+    if (
+        !photoButton ||
+        !imageInput
+    ) {
+
+        console.warn(
+            "Photo upload elements were not found."
+        );
+
+        return;
+    }
+
+
+    // ========================================================
+    // OPEN FILE SELECTOR
+    // ========================================================
+
+    photoButton.addEventListener(
+        "click",
+        () => {
+
+            if (
+                !chatAuthenticated
+            ) {
+
+                alert(
+                    "Please login to the chat first."
+                );
+
+                return;
+            }
+
+
+            imageInput.click();
+
+        }
+    );
+
+
+    // ========================================================
+    // FILE SELECTED
+    // ========================================================
+
+    imageInput.addEventListener(
+        "change",
+        async () => {
+
+            const file =
+                imageInput.files &&
+                imageInput.files[0];
+
+
+            if (!file) {
+                return;
+            }
+
+
+            await uploadImage(
+                file
+            );
+
+
+            // Allow selecting the same file again.
+            imageInput.value =
+                "";
+        }
+    );
+}
+
+
+// ============================================================
 // PAGE EVENTS
 // ============================================================
 
@@ -1960,6 +1941,10 @@ document.addEventListener(
 
         loadSapContent();
 
+
+        // ====================================================
+        // DATE
+        // ====================================================
 
         document
             .getElementById(
@@ -1992,6 +1977,10 @@ document.addEventListener(
             );
 
 
+        // ====================================================
+        // PASSWORD
+        // ====================================================
+
         document
             .getElementById(
                 "passwordForm"
@@ -2012,6 +2001,10 @@ document.addEventListener(
             );
 
 
+        // ====================================================
+        // TEXT MESSAGE
+        // ====================================================
+
         document
             .getElementById(
                 "form"
@@ -2022,6 +2015,17 @@ document.addEventListener(
             );
 
 
+        // ====================================================
+        // PHOTO UPLOAD
+        // ====================================================
+
+        initializeImageUpload();
+
+
+        // ====================================================
+        // CLOSE CHAT
+        // ====================================================
+
         document
             .getElementById(
                 "closeaskmeBtn"
@@ -2030,16 +2034,5 @@ document.addEventListener(
                 "click",
                 closeChat
             );
-			
-			document
-			.getElementById(
-				"deleteChatHistoryBtn"
-			)
-			.addEventListener(
-				"click",
-				deleteAllChatHistory
-			);
-	
-
     }
 );

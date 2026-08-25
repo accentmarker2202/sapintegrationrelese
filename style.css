@@ -14,7 +14,104 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: white;
 }
+/* ============================================================
+   PHOTO BUTTON
+============================================================ */
 
+.photo-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    min-width: 46px;
+
+    height: 46px;
+
+    padding: 0;
+
+    background: #667eea;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    font-size: 20px;
+
+    flex-shrink: 0;
+
+    transition:
+        background 0.3s,
+        opacity 0.3s,
+        transform 0.1s;
+}
+
+
+.photo-button:hover {
+    background: #764ba2;
+}
+
+
+.photo-button:active {
+    transform: scale(0.96);
+}
+
+
+.photo-button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   CHAT IMAGE
+============================================================ */
+
+.message-image-container {
+    margin-top: 8px;
+
+    max-width: 100%;
+
+    overflow: hidden;
+
+    border-radius: 8px;
+}
+
+
+.chat-image {
+    display: block;
+
+    width: auto;
+
+    max-width: 100%;
+
+    max-height: 500px;
+
+    height: auto;
+
+    border-radius: 8px;
+
+    object-fit: contain;
+
+    background: #f4f4f4;
+}
+
+
+.image-loading {
+    padding: 12px;
+
+    color: #888;
+
+    font-size: 13px;
+
+    font-style: italic;
+}
 
 /* ================================
    MENU BAR
@@ -677,6 +774,17 @@ body {
 
         font-size: 14px;
     }
+	
+	.photo-button {
+        width: 42px;
+
+        min-width: 42px;
+
+        height: 42px;
+
+        font-size: 18px;
+    }
+	
 
 
     #sapContainer {
@@ -817,6 +925,17 @@ body {
         padding: 10px;
 
         gap: 5px;
+    }
+	
+	
+   .photo-button {
+        width: 40px;
+
+        min-width: 40px;
+
+        height: 40px;
+
+        font-size: 17px;
     }
 
 
