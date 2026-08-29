@@ -64,7 +64,9 @@ const ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
     "image/png",
     "image/gif",
-    "image/webp"
+    "image/webp",
+	"image/heic"",
+	"image/heif"
 ];
 
 
@@ -1479,6 +1481,7 @@ async function uploadImage(
         return;
     }
 
+/*
 
     if (
         file.type === "image/heic" ||
@@ -1491,6 +1494,7 @@ async function uploadImage(
 
         return;
     }
+*/
 
 
     if (
@@ -1709,7 +1713,7 @@ async function uploadImage(
                 false;
 
             photoButton.textContent =
-                "📷 Screenshot";
+                "Screen";
         }
 
 

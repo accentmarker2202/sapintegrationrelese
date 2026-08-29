@@ -262,7 +262,7 @@
     <input
         type="file"
         id="imageInput"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp,image/gif,HEIC/HEIF"
         hidden
     >
 
@@ -280,13 +280,7 @@
     <span id="selectedPhotoName" class="selected-photo-name" aria-live="polite"></span>
 
     <!-- TEXT INPUT -->
-    <input
-        type="text"
-        id="msg"
-        placeholder="information to be checked ..."
-        autocomplete="off"
-        maxlength="2000"
-    >
+  <textarea id="msg" placeholder="information to be checked ..." autocomplete="off" maxlength="4000" rows="5" aria-label="Message" ></textarea>
 
     <!-- SEND TEXT -->
     <button
