@@ -5,18 +5,14 @@
 const API_BASE =
     "https://secure-chat-backend-eight.vercel.app/api";
 
-
 const VERIFY_DATE_API =
     `${API_BASE}/verify-date`;
-
 
 const LOGIN_API =
     `${API_BASE}/login`;
 
-
 const MESSAGES_API =
     `${API_BASE}/messages`;
-
 
 const LOGOUT_API =
     `${API_BASE}/logout`;
@@ -27,11 +23,8 @@ const LOGOUT_API =
 // ============================================================
 
 let dateToken = "";
-
 let sessionToken = "";
-
 let csrfToken = "";
-
 let chatAuthenticated = false;
 
 
@@ -40,35 +33,38 @@ let chatAuthenticated = false;
 // ============================================================
 
 let chatInitialized = false;
-
 let messagePolling = null;
-
 let lastMessageSignature = "";
 
 
 // ============================================================
 // IMAGE CONFIGURATION
 //
-// IMPORTANT:
+// A source photo can be up to 10 MB.
+// The browser compresses it before sending it.
 //
-// messages.js currently allows a maximum of 750 KB.
-// Keep the frontend limit the same.
+// This allows normal iPhone photos of 2–3 MB,
+// while keeping the final request smaller.
 // ============================================================
 
 const MAX_IMAGE_SIZE =
-    750 * 1024;
+    10 * 1024 * 1024;
+
+const MAX_UPLOAD_BYTES =
+    2 * 1024 * 1024;
+
+const MAX_IMAGE_WIDTH =
+    2400;
+
+const MAX_IMAGE_HEIGHT =
+    2400;
 
 
 const ALLOWED_IMAGE_TYPES = [
-
     "image/jpeg",
-
     "image/png",
-
     "image/gif",
-
     "image/webp"
-
 ];
 
 
@@ -213,17 +209,11 @@ function loadSapContent() {
         </p>
     `;
 
-
     const sapText =
-        document.getElementById(
-            "sapText"
-        );
-
+        document.getElementById("sapText");
 
     if (sapText) {
-
-        sapText.innerHTML =
-            sapContent;
+        sapText.innerHTML = sapContent;
     }
 }
 
@@ -235,88 +225,52 @@ function loadSapContent() {
 function showChatPasswordGate() {
 
     const askmeContainer =
-        document.getElementById(
-            "askmeContainer"
-        );
-
+        document.getElementById("askmeContainer");
 
     const passwordGate =
-        document.getElementById(
-            "chatPasswordGate"
-        );
-
+        document.getElementById("chatPasswordGate");
 
     const authenticatedChat =
-        document.getElementById(
-            "authenticatedChat"
-        );
-
+        document.getElementById("authenticatedChat");
 
     const sapContainer =
-        document.getElementById(
-            "sapContainer"
-        );
+        document.getElementById("sapContainer");
 
 
     if (askmeContainer) {
-
-        askmeContainer.classList.add(
-            "visible"
-        );
+        askmeContainer.classList.add("visible");
     }
-
 
     if (passwordGate) {
-
-        passwordGate.classList.add(
-            "visible"
-        );
+        passwordGate.classList.add("visible");
     }
-
 
     if (authenticatedChat) {
-
-        authenticatedChat.classList.remove(
-            "visible"
-        );
+        authenticatedChat.classList.remove("visible");
     }
 
-
     if (sapContainer) {
-
-        sapContainer.style.display =
-            "none";
+        sapContainer.style.display = "none";
     }
 
 
     const passwordError =
-        document.getElementById(
-            "passwordError"
-        );
-
+        document.getElementById("passwordError");
 
     if (passwordError) {
-
-        passwordError.textContent =
-            "";
+        passwordError.textContent = "";
     }
 
 
     const password =
-        document.getElementById(
-            "chatPassword"
-        );
-
+        document.getElementById("chatPassword");
 
     if (password) {
 
-        password.value =
-            "";
+        password.value = "";
 
         setTimeout(() => {
-
             password.focus();
-
         }, 100);
     }
 }
@@ -324,28 +278,18 @@ function showChatPasswordGate() {
 
 // ============================================================
 // VERIFY DATE
-//
-// The target date is calculated ONLY by Vercel.
 // ============================================================
 
 async function verifyDate() {
 
     const dateInputElement =
-        document.getElementById(
-            "dateInput"
-        );
-
+        document.getElementById("dateInput");
 
     const dateError =
-        document.getElementById(
-            "dateError"
-        );
-
+        document.getElementById("dateError");
 
     const button =
-        document.getElementById(
-            "verifyDateButton"
-        );
+        document.getElementById("verifyDateButton");
 
 
     if (
@@ -365,9 +309,7 @@ async function verifyDate() {
     const dateInput =
         dateInputElement.value.trim();
 
-
-    dateError.textContent =
-        "";
+    dateError.textContent = "";
 
 
     if (
@@ -385,24 +327,17 @@ async function verifyDate() {
 
     try {
 
-        button.disabled =
-            true;
-
-
-        button.textContent =
-            "Checking...";
+        button.disabled = true;
+        button.textContent = "Checking...";
 
 
         const response =
             await fetch(
                 VERIFY_DATE_API,
                 {
-
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json",
 
@@ -412,9 +347,7 @@ async function verifyDate() {
 
                     body:
                         JSON.stringify({
-
-                            date:
-                                dateInput
+                            date: dateInput
                         })
                 }
             );
@@ -430,9 +363,7 @@ async function verifyDate() {
         try {
 
             result =
-                JSON.parse(
-                    responseText
-                );
+                JSON.parse(responseText);
 
         } catch (jsonError) {
 
@@ -470,19 +401,7 @@ async function verifyDate() {
             result.dateToken || "";
 
 
-        /*
-         * Some versions of the backend return the date
-         * gate as a token, while the newer authentication
-         * design may use server-side validation.
-         */
-
         if (!dateToken) {
-
-            /*
-             * Keep compatibility with the current frontend.
-             * If your verify-date endpoint does not return
-             * dateToken, login will tell us clearly.
-             */
 
             console.warn(
                 "Server did not return dateToken."
@@ -508,12 +427,8 @@ async function verifyDate() {
 
     } finally {
 
-        button.disabled =
-            false;
-
-
-        button.textContent =
-            "Continue";
+        button.disabled = false;
+        button.textContent = "Continue";
     }
 }
 
@@ -528,21 +443,13 @@ async function loginToChat(event) {
 
 
     const passwordInput =
-        document.getElementById(
-            "chatPassword"
-        );
-
+        document.getElementById("chatPassword");
 
     const errorElement =
-        document.getElementById(
-            "passwordError"
-        );
-
+        document.getElementById("passwordError");
 
     const unlockButton =
-        document.getElementById(
-            "unlockButton"
-        );
+        document.getElementById("unlockButton");
 
 
     if (
@@ -581,16 +488,10 @@ async function loginToChat(event) {
     }
 
 
-    errorElement.textContent =
-        "";
+    errorElement.textContent = "";
 
-
-    unlockButton.disabled =
-        true;
-
-
-    unlockButton.textContent =
-        "Checking...";
+    unlockButton.disabled = true;
+    unlockButton.textContent = "Checking...";
 
 
     try {
@@ -599,12 +500,9 @@ async function loginToChat(event) {
             await fetch(
                 LOGIN_API,
                 {
-
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json",
 
@@ -614,12 +512,8 @@ async function loginToChat(event) {
 
                     body:
                         JSON.stringify({
-
-                            password:
-                                password,
-
-                            dateToken:
-                                dateToken
+                            password: password,
+                            dateToken: dateToken
                         })
                 }
             );
@@ -635,9 +529,7 @@ async function loginToChat(event) {
         try {
 
             result =
-                JSON.parse(
-                    responseText
-                );
+                JSON.parse(responseText);
 
         } catch (jsonError) {
 
@@ -687,19 +579,15 @@ async function loginToChat(event) {
         }
 
 
-        dateToken =
-            "";
+        dateToken = "";
 
-
-        chatAuthenticated =
-            true;
+        chatAuthenticated = true;
 
 
         const passwordGate =
             document.getElementById(
                 "chatPasswordGate"
             );
-
 
         const authenticatedChat =
             document.getElementById(
@@ -708,18 +596,12 @@ async function loginToChat(event) {
 
 
         if (passwordGate) {
-
-            passwordGate.classList.remove(
-                "visible"
-            );
+            passwordGate.classList.remove("visible");
         }
 
 
         if (authenticatedChat) {
-
-            authenticatedChat.classList.add(
-                "visible"
-            );
+            authenticatedChat.classList.add("visible");
         }
 
 
@@ -727,8 +609,7 @@ async function loginToChat(event) {
 
             initializeChat();
 
-            chatInitialized =
-                true;
+            chatInitialized = true;
         }
 
 
@@ -745,21 +626,14 @@ async function loginToChat(event) {
             "Incorrect password. Please try again.";
 
 
-        passwordInput.value =
-            "";
-
-
+        passwordInput.value = "";
         passwordInput.focus();
 
 
     } finally {
 
-        unlockButton.disabled =
-            false;
-
-
-        unlockButton.textContent =
-            "Unlock Chat";
+        unlockButton.disabled = false;
+        unlockButton.textContent = "Update the comments";
     }
 }
 
@@ -771,7 +645,6 @@ async function loginToChat(event) {
 async function loadMessages() {
 
     if (!chatAuthenticated) {
-
         return;
     }
 
@@ -782,20 +655,16 @@ async function loadMessages() {
             "loadMessages: sessionToken is missing."
         );
 
-
         showChatError(
             "Chat session is missing. Please login again."
         );
-
 
         return;
     }
 
 
     const chat =
-        document.getElementById(
-            "askme"
-        );
+        document.getElementById("askme");
 
 
     if (!chat) {
@@ -810,21 +679,13 @@ async function loadMessages() {
 
     try {
 
-        console.log(
-            "Loading messages from backend..."
-        );
-
-
         const response =
             await fetch(
                 `${MESSAGES_API}?limit=50`,
                 {
-
-                    method:
-                        "GET",
+                    method: "GET",
 
                     headers: {
-
                         "Accept":
                             "application/json",
 
@@ -835,20 +696,8 @@ async function loadMessages() {
             );
 
 
-        console.log(
-            "Messages API status:",
-            response.status
-        );
-
-
         const responseText =
             await response.text();
-
-
-        console.log(
-            "Messages API response:",
-            responseText
-        );
 
 
         let result;
@@ -857,9 +706,7 @@ async function loadMessages() {
         try {
 
             result =
-                JSON.parse(
-                    responseText
-                );
+                JSON.parse(responseText);
 
         } catch (jsonError) {
 
@@ -902,21 +749,13 @@ async function loadMessages() {
 
 
         if (
-            !Array.isArray(
-                result.messages
-            )
+            !Array.isArray(result.messages)
         ) {
 
             throw new Error(
                 "Invalid messages data received from server."
             );
         }
-
-
-        console.log(
-            "Messages received from Firebase:",
-            result.messages.length
-        );
 
 
         renderMessages(
@@ -927,29 +766,10 @@ async function loadMessages() {
     } catch (error) {
 
         console.error(
-            "=========================================="
-        );
-
-
-        console.error(
-            "LOAD MESSAGES ERROR"
-        );
-
-
-        console.error(
-            "=========================================="
-        );
-
-
-        console.error(
+            "LOAD MESSAGES ERROR:",
             error
         );
 
-
-        /*
-         * Do not replace already displayed messages
-         * with an error during a temporary polling failure.
-         */
 
         if (!chat.querySelector(".message")) {
 
@@ -969,9 +789,7 @@ async function loadMessages() {
 function renderMessages(messages) {
 
     const chat =
-        document.getElementById(
-            "askme"
-        );
+        document.getElementById("askme");
 
 
     if (!chat) {
@@ -990,47 +808,23 @@ function renderMessages(messages) {
     }
 
 
-    /*
-     * IMPORTANT:
-     *
-     * The image messages returned by your current
-     * messages.js contain:
-     *
-     * type
-     * imageId
-     * mimeType
-     *
-     * They do NOT contain image data.
-     *
-     * Therefore we fetch each image separately
-     * from:
-     *
-     * /api/messages?imageId=...
-     *
-     * with the Authorization header.
-     */
-
     let signature;
 
 
     try {
 
         signature =
-            JSON.stringify(
-                messages
-            );
+            JSON.stringify(messages);
 
     } catch (error) {
 
-        signature =
-            "";
+        signature = "";
     }
 
 
     if (
         signature &&
-        signature ===
-        lastMessageSignature
+        signature === lastMessageSignature
     ) {
 
         return;
@@ -1041,32 +835,23 @@ function renderMessages(messages) {
         signature;
 
 
-    chat.innerHTML =
-        "";
+    chat.innerHTML = "";
 
 
-    if (
-        messages.length === 0
-    ) {
+    if (messages.length === 0) {
 
         const emptyElement =
-            document.createElement(
-                "div"
-            );
-
+            document.createElement("div");
 
         emptyElement.className =
             "loading";
 
-
         emptyElement.textContent =
             "No messages yet.";
-
 
         chat.appendChild(
             emptyElement
         );
-
 
         return;
     }
@@ -1081,10 +866,7 @@ function renderMessages(messages) {
 
 
             const messageElement =
-                document.createElement(
-                    "div"
-                );
-
+                document.createElement("div");
 
             messageElement.className =
                 "message";
@@ -1095,18 +877,13 @@ function renderMessages(messages) {
             // =================================================
 
             const userElement =
-                document.createElement(
-                    "div"
-                );
-
+                document.createElement("div");
 
             userElement.className =
                 "message-user";
 
-
             userElement.textContent =
                 `${message.username || "Unknown"}:`;
-
 
             messageElement.appendChild(
                 userElement
@@ -1114,45 +891,34 @@ function renderMessages(messages) {
 
 
             // =================================================
-            // IMAGE MESSAGE
+            // PHOTO MESSAGE
             // =================================================
 
             if (
-                message.type ===
-                "image"
+                message.type === "photo"
             ) {
 
                 const imageContainer =
-                    document.createElement(
-                        "div"
-                    );
-
+                    document.createElement("div");
 
                 imageContainer.className =
                     "chat-image-container";
 
 
                 const imageElement =
-                    document.createElement(
-                        "img"
-                    );
-
+                    document.createElement("img");
 
                 imageElement.className =
                     "chat-image";
 
-
                 imageElement.alt =
                     "Chat image";
-
 
                 imageElement.loading =
                     "lazy";
 
-
                 imageElement.decoding =
                     "async";
-
 
                 imageElement.style.display =
                     "none";
@@ -1163,20 +929,11 @@ function renderMessages(messages) {
                 );
 
 
-                /*
-                 * Loading indicator while Vercel
-                 * decrypts the image.
-                 */
-
                 const loadingElement =
-                    document.createElement(
-                        "div"
-                    );
-
+                    document.createElement("div");
 
                 loadingElement.className =
-                    "loading";
-
+                    "image-loading";
 
                 loadingElement.textContent =
                     "Loading image...";
@@ -1197,21 +954,59 @@ function renderMessages(messages) {
                 );
 
 
-                /*
-                 * Fetch encrypted image through Vercel.
-                 *
-                 * The Authorization header is important.
-                 *
-                 * The browser never receives the
-                 * IMAGE_ENCRYPTION_KEY.
-                 */
+                // =================================================
+                // DISPLAY BASE64 IMAGE RETURNED BY BACKEND
+                // =================================================
 
-                loadChatImage(
-                    message.imageId,
-                    message.mimeType,
-                    imageElement,
-                    loadingElement
-                );
+                if (message.image) {
+
+                    try {
+
+                        const imageType =
+                            message.mimeType ||
+                            "image/jpeg";
+
+
+                        imageElement.src =
+                            `data:${imageType};base64,${message.image}`;
+
+
+                        imageElement.style.display =
+                            "block";
+
+
+                        loadingElement.remove();
+
+
+                        imageElement.addEventListener(
+                            "click",
+                            () => {
+
+                                openImageViewer(
+                                    imageElement.src
+                                );
+                            }
+                        );
+
+
+                    } catch (imageError) {
+
+                        console.error(
+                            "Unable to display photo:",
+                            imageError
+                        );
+
+
+                        loadingElement.textContent =
+                            "Unable to display image.";
+                    }
+
+                } else {
+
+                    loadingElement.textContent =
+                        message.error ||
+                        "Unable to load image.";
+                }
 
 
                 return;
@@ -1223,18 +1018,11 @@ function renderMessages(messages) {
             // =================================================
 
             const textElement =
-                document.createElement(
-                    "div"
-                );
-
+                document.createElement("div");
 
             textElement.className =
                 "message-text";
 
-
-            /*
-             * textContent prevents HTML injection.
-             */
 
             textElement.textContent =
                 message.text || "";
@@ -1248,193 +1036,12 @@ function renderMessages(messages) {
             chat.appendChild(
                 messageElement
             );
-
         }
     );
 
 
     chat.scrollTop =
         chat.scrollHeight;
-}
-
-
-// ============================================================
-// LOAD / DECRYPT IMAGE FROM SERVER
-// ============================================================
-
-async function loadChatImage(
-    imageId,
-    mimeType,
-    imageElement,
-    loadingElement
-) {
-
-    if (
-        !imageId ||
-        !sessionToken
-    ) {
-
-        if (loadingElement) {
-
-            loadingElement.textContent =
-                "Unable to load image.";
-        }
-
-        return;
-    }
-
-
-    try {
-
-        console.log(
-            "Loading encrypted image:",
-            imageId
-        );
-
-
-        const response =
-            await fetch(
-                `${MESSAGES_API}?imageId=${encodeURIComponent(imageId)}`,
-                {
-
-                    method:
-                        "GET",
-
-                    headers: {
-
-                        "Accept":
-                            mimeType ||
-                            "image/*",
-
-                        "Authorization":
-                            `Bearer ${sessionToken}`
-                    },
-
-                    cache:
-                        "no-store"
-                }
-            );
-
-
-        if (
-            response.status === 401 ||
-            response.status === 403
-        ) {
-
-            handleAuthenticationExpired();
-
-            return;
-        }
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                `Image server returned ${response.status}`
-            );
-        }
-
-
-        /*
-         * Receive the decrypted image as a Blob.
-         *
-         * The server performs the decryption.
-         */
-
-        const blob =
-            await response.blob();
-
-
-        if (!blob.size) {
-
-            throw new Error(
-                "The server returned an empty image."
-            );
-        }
-
-
-        const objectUrl =
-            URL.createObjectURL(
-                blob
-            );
-
-
-        imageElement.src =
-            objectUrl;
-
-
-        imageElement.style.display =
-            "block";
-
-
-        if (loadingElement) {
-
-            loadingElement.remove();
-        }
-
-
-        /*
-         * Clean up the temporary browser
-         * object URL after the image is loaded.
-         */
-
-        imageElement.addEventListener(
-            "load",
-            () => {
-
-                /*
-                 * Keep the image displayed.
-                 * The browser has loaded the Blob.
-                 */
-
-                setTimeout(
-                    () => {
-
-                        URL.revokeObjectURL(
-                            objectUrl
-                        );
-
-                    },
-                    1000
-                );
-            },
-            {
-                once: true
-            }
-        );
-
-
-        /*
-         * Open full-size viewer when clicked.
-         */
-
-        imageElement.addEventListener(
-            "click",
-            () => {
-
-                openImageViewer(
-                    objectUrl
-                );
-
-            }
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Unable to load chat image:",
-            imageId,
-            error
-        );
-
-
-        if (loadingElement) {
-
-            loadingElement.textContent =
-                "Unable to load image.";
-        }
-    }
 }
 
 
@@ -1452,28 +1059,20 @@ function openImageViewer(
 
 
     const overlay =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
     overlay.className =
         "image-viewer-overlay";
 
 
     const image =
-        document.createElement(
-            "img"
-        );
-
+        document.createElement("img");
 
     image.className =
         "image-viewer-image";
 
-
     image.src =
         imageSource;
-
 
     image.alt =
         "Chat image";
@@ -1487,9 +1086,7 @@ function openImageViewer(
     overlay.addEventListener(
         "click",
         () => {
-
             overlay.remove();
-
         }
     );
 
@@ -1501,17 +1098,260 @@ function openImageViewer(
 
 
 // ============================================================
-// CONVERT FILE TO BASE64
-//
-// Only used temporarily in memory to send the image
-// to Vercel.
-//
-// The encryption is performed on Vercel.
+// LOAD IMAGE FROM FILE
 // ============================================================
 
-function fileToBase64(
-    file
-) {
+function loadImageFromFile(file) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const objectUrl =
+                URL.createObjectURL(file);
+
+
+            const image =
+                new Image();
+
+
+            image.onload =
+                () => {
+
+                    URL.revokeObjectURL(
+                        objectUrl
+                    );
+
+                    resolve(image);
+                };
+
+
+            image.onerror =
+                () => {
+
+                    URL.revokeObjectURL(
+                        objectUrl
+                    );
+
+                    reject(
+                        new Error(
+                            "The selected image could not be opened."
+                        )
+                    );
+                };
+
+
+            image.src =
+                objectUrl;
+        }
+    );
+}
+
+
+// ============================================================
+// PREPARE IMAGE FOR UPLOAD
+// ============================================================
+
+async function prepareImageForUpload(file) {
+
+    if (
+        file.size >
+        MAX_IMAGE_SIZE
+    ) {
+
+        throw new Error(
+            "The selected photo is too large. Please choose an image smaller than 10 MB."
+        );
+    }
+
+
+    const image =
+        await loadImageFromFile(file);
+
+
+    let width =
+        image.naturalWidth;
+
+    let height =
+        image.naturalHeight;
+
+
+    if (
+        !width ||
+        !height
+    ) {
+
+        throw new Error(
+            "Unable to determine the image dimensions."
+        );
+    }
+
+
+    const scale =
+        Math.min(
+            1,
+            MAX_IMAGE_WIDTH / width,
+            MAX_IMAGE_HEIGHT / height
+        );
+
+
+    width =
+        Math.max(
+            1,
+            Math.round(
+                width * scale
+            )
+        );
+
+
+    height =
+        Math.max(
+            1,
+            Math.round(
+                height * scale
+            )
+        );
+
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    canvas.width =
+        width;
+
+    canvas.height =
+        height;
+
+
+    const context =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    if (!context) {
+
+        throw new Error(
+            "Your browser could not prepare the image."
+        );
+    }
+
+
+    context.imageSmoothingEnabled =
+        true;
+
+    context.imageSmoothingQuality =
+        "high";
+
+
+    context.drawImage(
+        image,
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    let outputType =
+        file.type === "image/png"
+            ? "image/png"
+            : "image/jpeg";
+
+
+    let quality =
+        0.88;
+
+
+    let blob =
+        null;
+
+
+    for (
+        let attempt = 0;
+        attempt < 7;
+        attempt++
+    ) {
+
+        blob =
+            await new Promise(
+                resolve => {
+
+                    canvas.toBlob(
+                        resolve,
+                        outputType,
+                        quality
+                    );
+                }
+            );
+
+
+        if (!blob) {
+
+            throw new Error(
+                "Unable to compress the selected image."
+            );
+        }
+
+
+        if (
+            blob.size <=
+            MAX_UPLOAD_BYTES
+        ) {
+
+            break;
+        }
+
+
+        if (
+            outputType ===
+            "image/png"
+        ) {
+
+            outputType =
+                "image/jpeg";
+
+            quality =
+                0.88;
+
+        } else {
+
+            quality -=
+                0.08;
+        }
+    }
+
+
+    if (!blob) {
+
+        throw new Error(
+            "Unable to prepare the image."
+        );
+    }
+
+
+    if (
+        blob.size >
+        MAX_UPLOAD_BYTES
+    ) {
+
+        throw new Error(
+            "This photo could not be compressed enough for upload. Please choose a smaller photo."
+        );
+    }
+
+
+    return blob;
+}
+
+
+// ============================================================
+// BLOB TO BASE64
+// ============================================================
+
+function blobToBase64(blob) {
 
     return new Promise(
         (
@@ -1526,71 +1366,45 @@ function fileToBase64(
             reader.onload =
                 () => {
 
-                    try {
-
-                        const result =
-                            reader.result;
-
-
-                        if (
-                            typeof result !==
-                            "string"
-                        ) {
-
-                            reject(
-                                new Error(
-                                    "Unable to read image."
-                                )
-                            );
-
-                            return;
-                        }
-
-
-                        const commaIndex =
-                            result.indexOf(",");
-
-
-                        if (
-                            commaIndex ===
-                            -1
-                        ) {
-
-                            reject(
-                                new Error(
-                                    "Invalid image data."
-                                )
-                            );
-
-                            return;
-                        }
-
-
-                        /*
-                         * Remove:
-                         *
-                         * data:image/jpeg;base64,
-                         *
-                         * leaving only Base64 data.
-                         */
-
-                        const base64 =
-                            result.slice(
-                                commaIndex + 1
-                            );
-
-
-                        resolve(
-                            base64
-                        );
-
-
-                    } catch (error) {
+                    if (
+                        typeof reader.result !==
+                        "string"
+                    ) {
 
                         reject(
-                            error
+                            new Error(
+                                "Unable to read prepared image."
+                            )
                         );
+
+                        return;
                     }
+
+
+                    const commaIndex =
+                        reader.result.indexOf(",");
+
+
+                    if (
+                        commaIndex ===
+                        -1
+                    ) {
+
+                        reject(
+                            new Error(
+                                "Invalid prepared image."
+                            )
+                        );
+
+                        return;
+                    }
+
+
+                    resolve(
+                        reader.result.slice(
+                            commaIndex + 1
+                        )
+                    );
                 };
 
 
@@ -1599,14 +1413,14 @@ function fileToBase64(
 
                     reject(
                         new Error(
-                            "Unable to read image."
+                            "Unable to read prepared image."
                         )
                     );
                 };
 
 
             reader.readAsDataURL(
-                file
+                blob
             );
         }
     );
@@ -1615,14 +1429,6 @@ function fileToBase64(
 
 // ============================================================
 // IMAGE UPLOAD
-//
-// IMPORTANT:
-//
-// This sends JSON.
-//
-// It does NOT use FormData.
-//
-// This matches the current messages.js backend.
 // ============================================================
 
 async function uploadImage(
@@ -1643,14 +1449,49 @@ async function uploadImage(
 
 
     if (!file) {
+        return;
+    }
+
+
+    const selectedPhotoName =
+        document.getElementById(
+            "selectedPhotoName"
+        );
+
+
+    if (selectedPhotoName) {
+
+        selectedPhotoName.textContent =
+            file.name ||
+            "Photo selected";
+    }
+
+
+    if (
+        !file.type ||
+        !file.type.startsWith("image/")
+    ) {
+
+        alert(
+            "Please select an image file."
+        );
 
         return;
     }
 
 
-    // ========================================================
-    // FILE TYPE CHECK
-    // ========================================================
+    if (
+        file.type === "image/heic" ||
+        file.type === "image/heif"
+    ) {
+
+        alert(
+            "HEIC/HEIF photos are not supported by this browser upload. Please choose JPG, PNG, or WebP from your iPhone."
+        );
+
+        return;
+    }
+
 
     if (
         !ALLOWED_IMAGE_TYPES.includes(
@@ -1666,17 +1507,13 @@ async function uploadImage(
     }
 
 
-    // ========================================================
-    // FILE SIZE CHECK
-    // ========================================================
-
     if (
         file.size >
         MAX_IMAGE_SIZE
     ) {
 
         alert(
-            "Image is too large. Maximum size is 750 KB."
+            "The selected photo is too large. Maximum source size is 10 MB."
         );
 
         return;
@@ -1702,36 +1539,42 @@ async function uploadImage(
     try {
 
         console.log(
-            "Preparing image:",
+            "Preparing photo:",
             file.name,
             file.type,
             file.size
         );
 
 
-        // ====================================================
-        // CONVERT TO BASE64
-        // ====================================================
-
-        const base64Image =
-            await fileToBase64(
+        const preparedBlob =
+            await prepareImageForUpload(
                 file
             );
 
 
         console.log(
-            "Image converted to Base64."
+            "Prepared image:",
+            preparedBlob.type,
+            preparedBlob.size
         );
 
 
+        const base64Image =
+            await blobToBase64(
+                preparedBlob
+            );
+
+
         // ====================================================
-        // SEND TO VERCEL
+        // IMPORTANT
         //
-        // Vercel encrypts it using:
+        // messages.js expects:
         //
-        // IMAGE_ENCRYPTION_KEY
+        // type: "photo"
         //
-        // The key never reaches this browser.
+        // NOT:
+        //
+        // type: "image"
         // ====================================================
 
         const response =
@@ -1758,10 +1601,11 @@ async function uploadImage(
                         JSON.stringify({
 
                             type:
-                                "image",
+                                "photo",
 
                             mimeType:
-                                file.type,
+                                preparedBlob.type ||
+                                "image/jpeg",
 
                             image:
                                 base64Image
@@ -1775,7 +1619,7 @@ async function uploadImage(
 
 
         console.log(
-            "Image upload response:",
+            "Photo upload response:",
             response.status,
             responseText
         );
@@ -1794,14 +1638,10 @@ async function uploadImage(
         } catch (jsonError) {
 
             throw new Error(
-                "Server returned an invalid response."
+                "Server returned an invalid upload response."
             );
         }
 
-
-        // ====================================================
-        // AUTHENTICATION EXPIRED
-        // ====================================================
 
         if (
             response.status === 401 ||
@@ -1814,10 +1654,6 @@ async function uploadImage(
         }
 
 
-        // ====================================================
-        // SERVER ERROR
-        // ====================================================
-
         if (!response.ok) {
 
             throw new Error(
@@ -1826,10 +1662,6 @@ async function uploadImage(
             );
         }
 
-
-        // ====================================================
-        // APPLICATION ERROR
-        // ====================================================
 
         if (
             !result ||
@@ -1844,13 +1676,9 @@ async function uploadImage(
 
 
         console.log(
-            "Image uploaded successfully."
+            "Photo uploaded successfully."
         );
 
-
-        /*
-         * Refresh chat immediately.
-         */
 
         lastMessageSignature =
             "";
@@ -1881,7 +1709,14 @@ async function uploadImage(
                 false;
 
             photoButton.textContent =
-                "📷";
+                "📷 Screenshot";
+        }
+
+
+        if (selectedPhotoName) {
+
+            selectedPhotoName.textContent =
+                "";
         }
     }
 }
@@ -1918,10 +1753,6 @@ function initializeImageUpload() {
     }
 
 
-    // ========================================================
-    // OPEN FILE SELECTOR
-    // ========================================================
-
     photoButton.addEventListener(
         "click",
         () => {
@@ -1944,10 +1775,6 @@ function initializeImageUpload() {
     );
 
 
-    // ========================================================
-    // FILE SELECTED
-    // ========================================================
-
     imageInput.addEventListener(
         "change",
         async () => {
@@ -1958,7 +1785,6 @@ function initializeImageUpload() {
 
 
             if (!file) {
-
                 return;
             }
 
@@ -1967,10 +1793,6 @@ function initializeImageUpload() {
                 file
             );
 
-
-            /*
-             * Allow selecting the same image again.
-             */
 
             imageInput.value =
                 "";
@@ -1983,7 +1805,9 @@ function initializeImageUpload() {
 // SEND TEXT MESSAGE
 // ============================================================
 
-async function sendMessage(event) {
+async function sendMessage(
+    event
+) {
 
     event.preventDefault();
 
@@ -2002,9 +1826,7 @@ async function sendMessage(event) {
 
 
     const input =
-        document.getElementById(
-            "msg"
-        );
+        document.getElementById("msg");
 
 
     const button =
@@ -2031,7 +1853,6 @@ async function sendMessage(event) {
 
 
     if (!text) {
-
         return;
     }
 
@@ -2118,10 +1939,6 @@ async function sendMessage(event) {
         }
 
 
-        // ====================================================
-        // SESSION EXPIRED
-        // ====================================================
-
         if (
             response.status === 401 ||
             response.status === 403
@@ -2133,10 +1950,6 @@ async function sendMessage(event) {
         }
 
 
-        // ====================================================
-        // SERVER ERROR
-        // ====================================================
-
         if (!response.ok) {
 
             throw new Error(
@@ -2145,10 +1958,6 @@ async function sendMessage(event) {
             );
         }
 
-
-        // ====================================================
-        // APPLICATION ERROR
-        // ====================================================
 
         if (
             !result ||
@@ -2162,21 +1971,11 @@ async function sendMessage(event) {
         }
 
 
-        console.log(
-            "Message sent successfully."
-        );
-
-
         input.value =
             "";
 
-
         input.focus();
 
-
-        /*
-         * Force refresh.
-         */
 
         lastMessageSignature =
             "";
@@ -2204,7 +2003,6 @@ async function sendMessage(event) {
         button.disabled =
             false;
 
-
         button.textContent =
             originalButtonText ||
             "Notify to SAP";
@@ -2219,11 +2017,6 @@ async function sendMessage(event) {
 function startMessagePolling() {
 
     stopMessagePolling();
-
-
-    console.log(
-        "Starting message polling."
-    );
 
 
     loadMessages();
@@ -2257,22 +2050,14 @@ function startMessagePolling() {
 
 function stopMessagePolling() {
 
-    if (
-        messagePolling
-    ) {
+    if (messagePolling) {
 
         clearInterval(
             messagePolling
         );
 
-
         messagePolling =
             null;
-
-
-        console.log(
-            "Message polling stopped."
-        );
     }
 }
 
@@ -2284,15 +2069,11 @@ function stopMessagePolling() {
 function initializeChat() {
 
     const chat =
-        document.getElementById(
-            "askme"
-        );
+        document.getElementById("askme");
 
 
     if (chat) {
-
-        chat.innerHTML =
-            "";
+        chat.innerHTML = "";
     }
 
 
@@ -2325,20 +2106,14 @@ async function deleteAllChatHistory() {
 
     const confirmed =
         confirm(
-
             "WARNING!\n\n" +
-
-            "This will permanently delete ALL update " +
-            "messages and photos from the database.\n\n" +
-
+            "This will permanently delete ALL update messages and photos from the database.\n\n" +
             "This action cannot be undone.\n\n" +
-
             "Are you sure you want to continue?"
         );
 
 
     if (!confirmed) {
-
         return;
     }
 
@@ -2360,11 +2135,6 @@ async function deleteAllChatHistory() {
 
 
     try {
-
-        console.log(
-            "Deleting all chat history..."
-        );
-
 
         const response =
             await fetch(
@@ -2408,13 +2178,6 @@ async function deleteAllChatHistory() {
         }
 
 
-        console.log(
-            "Delete response:",
-            response.status,
-            result
-        );
-
-
         if (
             response.status === 401 ||
             response.status === 403
@@ -2447,16 +2210,6 @@ async function deleteAllChatHistory() {
         }
 
 
-        console.log(
-            "All chat history deleted successfully."
-        );
-
-
-        /*
-         * Force next Firebase read to render
-         * the empty database.
-         */
-
         lastMessageSignature =
             "";
 
@@ -2471,6 +2224,7 @@ async function deleteAllChatHistory() {
 
             chat.innerHTML =
                 "";
+
 
             const emptyElement =
                 document.createElement(
@@ -2557,7 +2311,6 @@ async function closeChat() {
             );
         }
 
-
     } catch (error) {
 
         console.error(
@@ -2565,39 +2318,21 @@ async function closeChat() {
             error
         );
 
-
     } finally {
 
-        dateToken =
-            "";
+        dateToken = "";
+        sessionToken = "";
+        csrfToken = "";
+        chatAuthenticated = false;
 
-
-        sessionToken =
-            "";
-
-
-        csrfToken =
-            "";
-
-
-        chatAuthenticated =
-            false;
-
-
-        // ====================================================
-        // CLEAR INPUTS
-        // ====================================================
 
         const dateInput =
             document.getElementById(
                 "dateInput"
             );
 
-
         if (dateInput) {
-
-            dateInput.value =
-                "";
+            dateInput.value = "";
         }
 
 
@@ -2606,11 +2341,8 @@ async function closeChat() {
                 "dateError"
             );
 
-
         if (dateError) {
-
-            dateError.textContent =
-                "";
+            dateError.textContent = "";
         }
 
 
@@ -2619,11 +2351,8 @@ async function closeChat() {
                 "chatPassword"
             );
 
-
         if (password) {
-
-            password.value =
-                "";
+            password.value = "";
         }
 
 
@@ -2632,11 +2361,8 @@ async function closeChat() {
                 "passwordError"
             );
 
-
         if (passwordError) {
-
-            passwordError.textContent =
-                "";
+            passwordError.textContent = "";
         }
 
 
@@ -2645,11 +2371,8 @@ async function closeChat() {
                 "msg"
             );
 
-
         if (messageInput) {
-
-            messageInput.value =
-                "";
+            messageInput.value = "";
         }
 
 
@@ -2658,26 +2381,27 @@ async function closeChat() {
                 "imageInput"
             );
 
-
         if (imageInput) {
-
-            imageInput.value =
-                "";
+            imageInput.value = "";
         }
 
 
-        // ====================================================
-        // HIDE CHAT
-        // ====================================================
+        const selectedPhotoName =
+            document.getElementById(
+                "selectedPhotoName"
+            );
+
+        if (selectedPhotoName) {
+            selectedPhotoName.textContent = "";
+        }
+
 
         const passwordGate =
             document.getElementById(
                 "chatPasswordGate"
             );
 
-
         if (passwordGate) {
-
             passwordGate.classList.remove(
                 "visible"
             );
@@ -2689,9 +2413,7 @@ async function closeChat() {
                 "authenticatedChat"
             );
 
-
         if (authenticatedChat) {
-
             authenticatedChat.classList.remove(
                 "visible"
             );
@@ -2703,9 +2425,7 @@ async function closeChat() {
                 "askmeContainer"
             );
 
-
         if (askmeContainer) {
-
             askmeContainer.classList.remove(
                 "visible"
             );
@@ -2717,9 +2437,7 @@ async function closeChat() {
                 "sapContainer"
             );
 
-
         if (sapContainer) {
-
             sapContainer.style.display =
                 "block";
         }
@@ -2730,17 +2448,13 @@ async function closeChat() {
                 "askme"
             );
 
-
         if (chat) {
-
-            chat.innerHTML =
-                "";
+            chat.innerHTML = "";
         }
 
 
         chatInitialized =
             false;
-
 
         lastMessageSignature =
             "";
@@ -2757,14 +2471,11 @@ function handleAuthenticationExpired() {
     chatAuthenticated =
         false;
 
-
     sessionToken =
         "";
 
-
     csrfToken =
         "";
-
 
     dateToken =
         "";
@@ -2778,9 +2489,7 @@ function handleAuthenticationExpired() {
             "askmeContainer"
         );
 
-
     if (askmeContainer) {
-
         askmeContainer.classList.remove(
             "visible"
         );
@@ -2792,9 +2501,7 @@ function handleAuthenticationExpired() {
             "authenticatedChat"
         );
 
-
     if (authenticatedChat) {
-
         authenticatedChat.classList.remove(
             "visible"
         );
@@ -2806,9 +2513,7 @@ function handleAuthenticationExpired() {
             "chatPasswordGate"
         );
 
-
     if (passwordGate) {
-
         passwordGate.classList.remove(
             "visible"
         );
@@ -2820,9 +2525,7 @@ function handleAuthenticationExpired() {
             "sapContainer"
         );
 
-
     if (sapContainer) {
-
         sapContainer.style.display =
             "block";
     }
@@ -2833,17 +2536,13 @@ function handleAuthenticationExpired() {
             "dateInput"
         );
 
-
     if (dateInput) {
-
-        dateInput.value =
-            "";
+        dateInput.value = "";
     }
 
 
     chatInitialized =
         false;
-
 
     lastMessageSignature =
         "";
@@ -2870,13 +2569,11 @@ function showChatError(
 
 
     if (!chat) {
-
         return;
     }
 
 
-    chat.innerHTML =
-        "";
+    chat.innerHTML = "";
 
 
     const errorElement =
@@ -2900,91 +2597,6 @@ function showChatError(
 
 
 // ============================================================
-// IMAGE BUTTON SETUP
-// ============================================================
-
-function initializeImageUpload() {
-
-    const photoButton =
-        document.getElementById(
-            "photoButton"
-        );
-
-
-    const imageInput =
-        document.getElementById(
-            "imageInput"
-        );
-
-
-    if (
-        !photoButton ||
-        !imageInput
-    ) {
-
-        console.warn(
-            "Photo upload elements were not found."
-        );
-
-        return;
-    }
-
-
-    photoButton.addEventListener(
-        "click",
-        () => {
-
-            if (
-                !chatAuthenticated ||
-                !sessionToken
-            ) {
-
-                alert(
-                    "Please login to the chat first."
-                );
-
-                return;
-            }
-
-
-            imageInput.click();
-        }
-    );
-
-
-    imageInput.addEventListener(
-        "change",
-        async () => {
-
-            const file =
-                imageInput.files &&
-                imageInput.files[0];
-
-
-            if (!file) {
-
-                return;
-            }
-
-
-            await uploadImage(
-                file
-            );
-
-
-            /*
-             * Allows the same image to be selected
-             * again.
-             */
-
-            imageInput.value =
-                "";
-        }
-    );
-}
-
-
-// ============================================================
 // PAGE EVENTS
 // ============================================================
 
@@ -2992,16 +2604,8 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        // ====================================================
-        // SAP CONTENT
-        // ====================================================
-
         loadSapContent();
 
-
-        // ====================================================
-        // DATE BUTTON
-        // ====================================================
 
         const verifyDateButton =
             document.getElementById(
@@ -3017,10 +2621,6 @@ document.addEventListener(
             );
         }
 
-
-        // ====================================================
-        // DATE ENTER
-        // ====================================================
 
         const dateInput =
             document.getElementById(
@@ -3048,10 +2648,6 @@ document.addEventListener(
         }
 
 
-        // ====================================================
-        // PASSWORD FORM
-        // ====================================================
-
         const passwordForm =
             document.getElementById(
                 "passwordForm"
@@ -3066,10 +2662,6 @@ document.addEventListener(
             );
         }
 
-
-        // ====================================================
-        // PASSWORD CANCEL
-        // ====================================================
 
         const cancelPasswordButton =
             document.getElementById(
@@ -3086,10 +2678,6 @@ document.addEventListener(
         }
 
 
-        // ====================================================
-        // TEXT MESSAGE FORM
-        // ====================================================
-
         const messageForm =
             document.getElementById(
                 "form"
@@ -3105,16 +2693,8 @@ document.addEventListener(
         }
 
 
-        // ====================================================
-        // PHOTO UPLOAD
-        // ====================================================
-
         initializeImageUpload();
 
-
-        // ====================================================
-        // CLOSE CHAT
-        // ====================================================
 
         const closeChatButton =
             document.getElementById(
@@ -3130,10 +2710,6 @@ document.addEventListener(
             );
         }
 
-
-        // ====================================================
-        // DELETE CHAT HISTORY
-        // ====================================================
 
         const deleteButton =
             document.getElementById(
@@ -3155,3 +2731,4 @@ document.addEventListener(
         );
     }
 );
+
