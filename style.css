@@ -908,6 +908,24 @@ body {
 }
 
 
+/* ============================================================
+   MESSAGE DATE & TIME
+============================================================ */
+
+.message-time {
+
+    margin-top: 6px;
+
+    color: #888;
+
+    font-size: 11px;
+
+    text-align: right;
+
+    font-style: italic;
+}
+
+
 .message-text {
 
     color: #333;
@@ -1143,6 +1161,7 @@ body {
 
 
     #sapContainer {
+
         padding: 15px;
     }
 
@@ -1257,6 +1276,12 @@ body {
     }
 
 
+    #message-time {
+
+        font-size: 10px;
+    }
+
+
     .chat-image {
 
         max-height: 450px;
@@ -1348,5 +1373,10 @@ body {
 
         font-size: 11px;
     }
-}
 
+
+    .message-time {
+
+        font-size: 10px;
+    }
+}

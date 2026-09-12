@@ -782,7 +782,48 @@ async function loadMessages() {
         }
     }
 }
+// ============================================================
+// FORMAT MESSAGE DATE & TIME
+// ============================================================
 
+function formatMessageDateTime(timestamp) {
+
+    if (
+        timestamp === null ||
+        timestamp === undefined ||
+        timestamp === ""
+    ) {
+        return "";
+    }
+
+
+    const date =
+        new Date(
+            Number(timestamp)
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "";
+    }
+
+
+    return new Intl.DateTimeFormat(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        }
+    ).format(date);
+}
 
 // ============================================================
 // RENDER MESSAGES
@@ -890,7 +931,28 @@ function renderMessages(messages) {
             messageElement.appendChild(
                 userElement
             );
+            
+			// =================================================
+			// MESSAGE DATE & TIME
+			// =================================================
 
+			const timeElement =
+			document.createElement("div");
+
+			timeElement.className =
+			"message-time";
+
+			timeElement.textContent =
+			formatMessageDateTime(
+			message.timestamp
+			);
+
+			if (timeElement.textContent) {
+
+				messageElement.appendChild(
+					timeElement
+				);
+				}
 
             // =================================================
             // PHOTO MESSAGE
